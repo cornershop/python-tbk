@@ -10,6 +10,7 @@ name = "pypi"
 ipython = "*"
 nose = "*"
 Flask = "*"
+docutils = "*"
 
 
 [packages]

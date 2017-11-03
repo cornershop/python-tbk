@@ -8,9 +8,6 @@ from .exceptions import WebpayServiceException
 
 
 class WebpayService(object):
-    INTEGRACION = 'INTEGRACION'
-    CERTIFICACION = 'CERTIFICACION'
-    PRODUCCION = 'PRODUCCION'
 
     def __init__(self, commerce, soap_client):
         self.commerce = commerce
@@ -67,15 +64,15 @@ class SudsSoapClient(object):
         from suds import WebFault
         try:
             method = getattr(self.service, method_name)
-            self.logger.info("Starting request to method `{}`.".format(method_name))
+            self.logger.info("Starting request to method `{}`".format(method_name))
             self.logger.debug(method_input)
             result = method(method_input)
-            self.logger.info("Successful request to method `{}`.".format(method_name))
+            self.logger.info("Successful request to method `{}`".format(method_name))
             self.logger.debug(result)
             return result
-        except WebFault as e:
-            self.logger.warn("Soap request method `{}` failed.".format(method_name), exc_info=True)
-            error, code = _parse_suds_webfault(e)
+        except WebFault as webfault:
+            self.logger.warn("Soap request method `{}` failed".format(method_name), exc_info=True)
+            error, code = _parse_suds_webfault(webfault.args[0])
             raise WebpayServiceException(error, code)
 
     def create_input(self, type_name, instance_arguments):
@@ -111,10 +108,14 @@ class SudsSoapClient(object):
         return self.client.service
 
 
-def _parse_suds_webfault(webfault):
-    raw_message = webfault.args[0]
-    message = re.search(r'\'<!--(.+?)-->\'', raw_message).group(1).strip()
-    match = re.search(r'(.+?)\((\d+?)\)', message)
-    error = match.group(1)
-    code = int(match.group(2))
-    return error, code
+def _parse_suds_webfault(raw_message):
+    message_match = re.search(r'\'<!--(.+?)-->\'', raw_message)
+    if message_match:
+        message = message_match.group(1).strip()
+        match = re.search(r'(.+?)\((\d+?)\)', message)
+        if match:
+            error = match.group(1)
+            code = int(match.group(2))
+            return error, code
+        return message, None
+    return raw_message, None

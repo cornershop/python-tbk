@@ -29,10 +29,6 @@ class WssePlugin(MessagePlugin):
       </soap:Body>
     </soap:Envelope>
 
-    The contents of the soap:Body element are specific to the receiving API;
-    nothing in ``py-wsse`` knows or cares about them (except that currently
-    only the first child element of the soap:Body will be encrypted).
-
     """
     def __init__(self, key, tbk_cert):
         self.key = key

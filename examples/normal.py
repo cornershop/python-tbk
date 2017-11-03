@@ -3,8 +3,7 @@ import logging
 
 from flask import Flask, render_template, request, session
 
-from tbk.commerce import Commerce
-from tbk.webpay_normal import WebpayNormal
+from tbk import Commerce, WebpayNormal, INTEGRACION
 
 app = Flask(__name__)
 
@@ -91,7 +90,7 @@ JvD7YLhPvCYKry7N6x3l
 -----END CERTIFICATE-----\
 """
 
-commerce = Commerce(COMMERCE_CODE, KEY_DATA, CERT_DATA, TBK_CERT_DATA, WebpayNormal.INTEGRACION)
+commerce = Commerce(COMMERCE_CODE, KEY_DATA, CERT_DATA, TBK_CERT_DATA, INTEGRACION)
 webpay_normal = WebpayNormal.init_for_commerce(commerce)
 
 

@@ -34,10 +34,10 @@ class OneClick(WebpayService):
         one_click_pay_input = self.soap_client.create_input('oneClickPayInput', arguments)
         return self.soap_client.do_request('authorize', one_click_pay_input)
 
-    def reverse_transaction(self, buy_order):
-        arguments = {'buyOrder': buy_order}
+    def code_reverse_oneclick(self, buyorder):
+        arguments = {'buyorder': buyorder}
         one_click_reverse_input = self.soap_client.create_input('oneClickReverseInput', arguments)
-        return self.soap_client.do_request('reverseTransaction', one_click_reverse_input)
+        return self.soap_client.do_request('codeReverseOneClick', one_click_reverse_input)
 
     def remove_user(self, tbk_user, username):
         arguments = {
