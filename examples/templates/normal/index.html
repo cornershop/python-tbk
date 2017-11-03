@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Webpay Normal</title>
+</head>
+<body>
+
+<h1>Webpay Normal - Init Transaction</h1>
+
+<form method="POST" action="/init">
+  <fieldset>
+    <legend>New Transaction Data</legend>
+    
+    <div>
+      <label for="amount">Amount
+        <input type="text" name="amount" id="amount">
+      </label>
+    </div>
+
+    <div>
+      <label for="buy_order">Buy Order (?)
+        <input type="text" name="buy_order" id="buy_order">
+      </label>
+    </div>
+
+    <div>
+      <label for="amount">Session ID
+        <input type="text" name="session_id" id="session_id">
+      </label>
+    </div>
+
+  </fieldset>
+  <button type="submit">Init Transaction</button>
+</form>
+</body>
+</html>

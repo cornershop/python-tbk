@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Webpay Normal - Return Success</title>
+</head>
+<body>
+	<h1>Webpay Normal - Return Success</h1>
+
+	<dl>
+		{% for key, value in session['transaction_detail'].items() %}
+		<dt>{{key}}</dt>
+		<dd>{{value}}</dd>
+		{% endfor %}
+	</dl>
+	<form method="POST" action="{{transaction.urlRedirection}}">
+		<input type='hidden' name='token_ws' value="{{token}}">
+		<button type="submit">Proceed to Transbank</button>
+	</form>
+	<a href="/">Go Back</a>
+</body>
+</html>
