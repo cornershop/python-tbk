@@ -9,7 +9,7 @@ name = "pypi"
 
 ipython = "*"
 nose = "*"
-Flask = "*"
+flask = "*"
 docutils = "*"
 
 
