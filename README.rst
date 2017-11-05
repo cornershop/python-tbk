@@ -43,12 +43,29 @@ Documentation
 You can refer to http://www.transbankdevelopers.cl/?m=api for official API documentation. This library documentation is on the way.
 
 
+Loggers
+=======
+
+There are two levels of loggers::
+
+	tbk.service
+	tbk.service.soap
+
+Specific service logger are defined by class name::
+
+	tbk.service.WebpayNormal
+
+Specific soap requester logger is also defined by class name::
+
+	tbk.service.soap.SudsSoapClient
+
+
 🇪🇸
 
 Intalación
 ==========
 
-Ejecuta ::
+Ejecuta::
 
 	$ python setup.py install
 
@@ -84,3 +101,18 @@ Documentación
 La documentación oficial se encuentra disponible en http://www.transbankdevelopers.cl/?m=api. La documentación de esta librería está en desarrollo.
 
 
+Loggers
+=======
+
+Se encuentran definidos dos niveles de logger::
+
+	tbk.service
+	tbk.service.soap
+
+El logger específico de un servicio está definido por su nombre de clase::
+
+	tbk.service.WebpayNormal
+
+El logger específico de soap está también definido por su nombre de clase::
+
+	tbk.service.soap.SudsSoapClient
