@@ -1,5 +1,6 @@
 /webpay-sdk-python-2-0/
 /README.html
+.mypy_cache/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

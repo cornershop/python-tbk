@@ -17,12 +17,12 @@ class OneClick(WebpayService):
             'responseURL': response_url
         }
         one_click_inscription_input = self.soap_client.create_input('oneClickInscriptionInput', arguments)
-        return self.soap_client.do_request('initInscription', one_click_inscription_input)
+        return self.soap_client.request('initInscription', one_click_inscription_input)
 
     def finish_inscription(self, token):
         arguments = {'token': token}
         one_click_finish_inscription_input = self.soap_client.create_input('oneClickFinishInscriptionInput', arguments)
-        return self.soap_client.do_request('finishInscription', one_click_finish_inscription_input)
+        return self.soap_client.request('finishInscription', one_click_finish_inscription_input)
 
     def authorize(self, buy_order, tbk_user, username, amount):
         arguments = {
@@ -32,12 +32,12 @@ class OneClick(WebpayService):
             'amount': amount
         }
         one_click_pay_input = self.soap_client.create_input('oneClickPayInput', arguments)
-        return self.soap_client.do_request('authorize', one_click_pay_input)
+        return self.soap_client.request('authorize', one_click_pay_input)
 
     def code_reverse_oneclick(self, buyorder):
         arguments = {'buyorder': buyorder}
         one_click_reverse_input = self.soap_client.create_input('oneClickReverseInput', arguments)
-        return self.soap_client.do_request('codeReverseOneClick', one_click_reverse_input)
+        return self.soap_client.request('codeReverseOneClick', one_click_reverse_input)
 
     def remove_user(self, tbk_user, username):
         arguments = {
@@ -45,4 +45,4 @@ class OneClick(WebpayService):
             'username': username
         }
         one_click_remove_user_input = self.soap_client.create_input('oneClickRemoveUserInput', arguments)
-        return self.soap_client.do_request('oneClickRemoveUser', one_click_remove_user_input)
+        return self.soap_client.request('oneClickRemoveUser', one_click_remove_user_input)

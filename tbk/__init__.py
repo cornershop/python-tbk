@@ -1,5 +1,5 @@
 
-from .__version__ import __version__  # noqa
+from .__about__ import __version__  # noqa
 
 from .commerce import Commerce  # noqa
 from .oneclick import OneClick  # noqa

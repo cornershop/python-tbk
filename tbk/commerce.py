@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 
 class Commerce(object):
+
     def __init__(self, commerce_code, key_data, cert_data, tbk_cert_data, environment):
         self.commerce_code = commerce_code
         self.key_data = key_data

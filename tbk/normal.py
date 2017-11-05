@@ -31,10 +31,10 @@ class WebpayNormal(WebpayService):
             'wPMDetail': ('wpmDetailInput', {})
         }
         init_transaction_input = self.soap_client.create_input('wsInitTransactionInput', arguments)
-        return self.soap_client.do_request('initTransaction', init_transaction_input)
+        return self.soap_client.request('initTransaction', init_transaction_input)
 
     def get_transaction_result(self, token):
-        return self.soap_client.do_request('getTransactionResult', token)
+        return self.soap_client.request('getTransactionResult', token)
 
     def acknowledge_transaction(self, token):
-        return self.soap_client.do_request('acknowledgeTransaction', token)
+        return self.soap_client.request('acknowledgeTransaction', token)

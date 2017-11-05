@@ -25,4 +25,4 @@ class TestWebpayNormal(unittest.TestCase):
         transaction = webpay_normal.init_transaction(amount, buy_order, return_url, final_url)
 
         assert hasattr(transaction, 'token')
-        assert hasattr(transaction, 'urlWebpay')
+        assert hasattr(transaction, 'url')

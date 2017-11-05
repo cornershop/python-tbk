@@ -19,4 +19,4 @@ class Nullify(WebpayService):
             'nullifyAmount': nullify_amount
         }
         nullification_input = self.soap_client.create_input('nullificationInput', arguments)
-        return self.soap_client.do_request('nullify', nullification_input)
+        return self.soap_client.request('nullify', nullification_input)

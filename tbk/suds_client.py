@@ -1,10 +1,68 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import re
+
+from .exceptions import WebpayServiceException
+from .service import SoapClient
 from .wsse import sign_envelope_data, verify_envelope_data
 
 import xmlsec
+
+from suds import WebFault
+from suds.client import Client
+from suds.wsse import Security
+from suds.transport.https import HttpTransport
 from suds.plugin import MessagePlugin
+
+
+class SudsSoapClient(SoapClient):
+
+    def __init__(self, wsdl_url, key_data, cert_data, tbk_cert_data):
+        client = create_suds_client(wsdl_url, key_data, cert_data, tbk_cert_data)
+        super(SudsSoapClient, self).__init__(client=client)
+
+    def get_method(self, method_name):
+        return getattr(self.client.service, method_name)
+
+    def create_instance(self, type_name):
+        return self.client.factory.create(type_name)
+
+    def do_request(self, method, method_input):
+        try:
+            return method(method_input)
+        except WebFault as webfault:
+            error, code = parse_suds_webfault(webfault.args[0])
+            raise WebpayServiceException(error, code)
+
+
+def create_suds_client(wsdl_url, key_data, cert_data, tbk_cert_data):
+    transport = HttpTransport()
+    wsse = Security()
+    wsse_plugin = WssePlugin.init_from_data(
+        key_data=key_data,
+        cert_data=cert_data,
+        tbk_cert_data=tbk_cert_data,
+    )
+    return Client(
+        url=wsdl_url,
+        transport=transport,
+        wsse=wsse,
+        plugins=[wsse_plugin],
+    )
+
+
+def parse_suds_webfault(raw_message):
+    message_match = re.search(r'\'<!--(.+?)-->\'', raw_message)
+    if message_match:
+        message = message_match.group(1).strip()
+        match = re.search(r'(.+?)\((\d+?)\)', message)
+        if match:
+            error = match.group(1)
+            code = int(match.group(2))
+            return error, code
+        return message, -1
+    return raw_message, -1
 
 
 class WssePlugin(MessagePlugin):

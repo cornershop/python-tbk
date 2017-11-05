@@ -2,20 +2,27 @@
 from __future__ import unicode_literals
 
 import logging
-import re
 
-from .exceptions import WebpayServiceException
+try:
+    from typing import Text, Union, Any  # noqa
+except ImportError:
+    pass
+
+from .commerce import Commerce  # noqa
 
 
 class WebpayService(object):
 
     def __init__(self, commerce, soap_client):
+        # type: (Commerce, SoapClient) -> None
         self.commerce = commerce
         self.soap_client = soap_client
         self.logger = logging.getLogger('tbk.service.{}'.format(self.__class__.__name__))
 
     @classmethod
     def init_for_commerce(cls, commerce):
+        # type: (Commerce) -> WebpayService
+        from .suds_client import SudsSoapClient
         soap_client = SudsSoapClient(
             cls.get_wsdl_url_for_environent(commerce.environment),
             commerce.key_data,
@@ -26,54 +33,18 @@ class WebpayService(object):
 
     @classmethod
     def get_wsdl_url_for_environent(cls, environment):
+        # type: (Text) -> Text
         try:
             return getattr(cls, 'WSDL_{}'.format(environment))
         except AttributeError:
             raise ValueError("Invalid environment {}".format(environment))
 
 
-class SudsSoapClient(object):
-    def __init__(self, wsdl_url, key_data, cert_data, webpay_cert_data):
-        self.client = self.create_client(wsdl_url, key_data, cert_data, webpay_cert_data)
+class SoapClient(object):
+
+    def __init__(self, client):
+        self.client = client
         self.logger = logging.getLogger('tbk.service.soap.{}'.format(self.__class__.__name__))
-
-    @classmethod
-    def create_client(cls, wsdl_url, key_data, cert_data, tbk_cert_data):
-        from .suds_plugin import WssePlugin
-
-        from suds.client import Client
-        from suds.wsse import Security
-        from suds.transport.https import HttpTransport
-
-        transport = HttpTransport()
-        wsse = Security()
-        wsse_plugin = WssePlugin.init_from_data(
-            key_data=key_data,
-            cert_data=cert_data,
-            tbk_cert_data=tbk_cert_data,
-        )
-
-        return Client(
-            wsdl_url,
-            transport=transport,
-            wsse=wsse,
-            plugins=[wsse_plugin],
-        )
-
-    def do_request(self, method_name, method_input):
-        from suds import WebFault
-        try:
-            method = getattr(self.service, method_name)
-            self.logger.info("Starting request to method `{}`".format(method_name))
-            self.logger.debug(method_input)
-            result = method(method_input)
-            self.logger.info("Successful request to method `{}`".format(method_name))
-            self.logger.debug(result)
-            return result
-        except WebFault as webfault:
-            self.logger.warn("Soap request method `{}` failed".format(method_name), exc_info=True)
-            error, code = _parse_suds_webfault(webfault.args[0])
-            raise WebpayServiceException(error, code)
 
     def create_input(self, type_name, instance_arguments):
         input_instance = self.create_instance(type_name)
@@ -96,26 +67,24 @@ class SudsSoapClient(object):
                 arguments = self.create_input(*arguments)
             setattr(input_instance, argument_name, arguments)
 
+    def request(self, method_name, method_input):
+        method = self.get_method(method_name)
+        try:
+            self.logger.info("Starting request to method `{}`".format(method_name))
+            self.logger.debug(method_input)
+            result = self.do_request(method, method_input)
+            self.logger.info("Successful request to method `{}`".format(method_name))
+            self.logger.debug(result)
+            return result
+        except Exception:
+            self.logger.error("Soap request method `{}` failed".format(method_name), exc_info=True)
+            raise
+
     def create_instance(self, type_name):
-        return self.factory.create(type_name)
+        raise NotImplementedError()
 
-    @property
-    def factory(self):
-        return self.client.factory
+    def get_method(self, method_name):
+        raise NotImplementedError()
 
-    @property
-    def service(self):
-        return self.client.service
-
-
-def _parse_suds_webfault(raw_message):
-    message_match = re.search(r'\'<!--(.+?)-->\'', raw_message)
-    if message_match:
-        message = message_match.group(1).strip()
-        match = re.search(r'(.+?)\((\d+?)\)', message)
-        if match:
-            error = match.group(1)
-            code = int(match.group(2))
-            return error, code
-        return message, None
-    return raw_message, None
+    def do_request(self, method_name):
+        raise NotImplementedError()
