@@ -1,7 +1,12 @@
 
 import os
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 from tbk.commerce import Commerce
+from tbk.service import SoapClient
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 
@@ -57,3 +62,25 @@ def dict2suds(d):
         else:
             out[k] = v
     return Factory.object(out.pop('__class__'), out)
+
+
+class MockSoapClient(SoapClient):
+    def __init__(self):
+        self.created_instances = []
+        self.retrieved_methods = []
+        self.requests_made = []
+
+    def create_instance(self, type_name):
+        instance = mock.Mock(name=type_name)
+        self.created_instances.append((type_name, instance))
+        return instance
+
+    def get_method(self, method_name):
+        instance = mock.Mock(name=method_name)
+        self.retrieved_methods.append((method_name, instance))
+        return instance
+
+    def do_request(self, method, method_input):
+        result = mock.Mock()
+        self.requests_made.append((method, method_input, result))
+        return result

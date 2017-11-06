@@ -86,5 +86,5 @@ class SoapClient(object):
     def get_method(self, method_name):
         raise NotImplementedError()
 
-    def do_request(self, method_name):
+    def do_request(self, method, method_input):
         raise NotImplementedError()
