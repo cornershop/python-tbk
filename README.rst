@@ -2,6 +2,14 @@
 Unofficial Webpay Web Services Python SDK
 =========================================
 
+⚠️ Warning
+==========
+
+This project is not ready for production use.
+
+Este proyecto no está listo para uso en producción.
+
+
 🇬🇧
 
 Installation
