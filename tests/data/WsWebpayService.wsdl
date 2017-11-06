@@ -1,0 +1,196 @@
+<?xml version='1.0' encoding='UTF-8'?><wsdl:definitions name="WSWebpayServiceImplService" targetNamespace="http://service.wswebpay.webpay.transbank.com/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://service.wswebpay.webpay.transbank.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:types>
+<xs:schema elementFormDefault="unqualified" targetNamespace="http://service.wswebpay.webpay.transbank.com/" version="1.0" xmlns:tns="http://service.wswebpay.webpay.transbank.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:element name="acknowledgeTransaction" type="tns:acknowledgeTransaction"/>
+<xs:element name="acknowledgeTransactionResponse" type="tns:acknowledgeTransactionResponse"/>
+<xs:element name="getTransactionResult" type="tns:getTransactionResult"/>
+<xs:element name="getTransactionResultResponse" type="tns:getTransactionResultResponse"/>
+<xs:element name="initTransaction" type="tns:initTransaction"/>
+<xs:element name="initTransactionResponse" type="tns:initTransactionResponse"/>
+<xs:complexType name="getTransactionResult">
+<xs:sequence>
+<xs:element name="tokenInput" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="getTransactionResultResponse">
+<xs:sequence>
+<xs:element minOccurs="0" name="return" type="tns:transactionResultOutput"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="transactionResultOutput">
+<xs:sequence>
+<xs:element minOccurs="0" name="accountingDate" type="xs:string"/>
+<xs:element minOccurs="0" name="buyOrder" type="xs:string"/>
+<xs:element minOccurs="0" name="cardDetail" type="tns:cardDetail"/>
+<xs:element maxOccurs="unbounded" minOccurs="0" name="detailOutput" nillable="true" type="tns:wsTransactionDetailOutput"/>
+<xs:element minOccurs="0" name="sessionId" type="xs:string"/>
+<xs:element minOccurs="0" name="transactionDate" type="xs:dateTime"/>
+<xs:element minOccurs="0" name="urlRedirection" type="xs:string"/>
+<xs:element minOccurs="0" name="VCI" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="cardDetail">
+<xs:sequence>
+<xs:element name="cardNumber" type="xs:string"/>
+<xs:element name="cardExpirationDate" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="wsTransactionDetailOutput">
+<xs:complexContent>
+<xs:extension base="tns:wsTransactionDetail">
+<xs:sequence>
+<xs:element minOccurs="0" name="authorizationCode" type="xs:string"/>
+<xs:element minOccurs="0" name="paymentTypeCode" type="xs:string"/>
+<xs:element name="responseCode" type="xs:int"/>
+</xs:sequence>
+</xs:extension>
+</xs:complexContent>
+</xs:complexType>
+<xs:complexType name="wsTransactionDetail">
+<xs:sequence>
+<xs:element minOccurs="0" name="sharesAmount" type="xs:decimal"/>
+<xs:element minOccurs="0" name="sharesNumber" type="xs:int"/>
+<xs:element name="amount" type="xs:decimal"/>
+<xs:element name="commerceCode" type="xs:string"/>
+<xs:element name="buyOrder" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="acknowledgeTransaction">
+<xs:sequence>
+<xs:element name="tokenInput" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="acknowledgeTransactionResponse">
+<xs:sequence/>
+</xs:complexType>
+<xs:complexType name="initTransaction">
+<xs:sequence>
+<xs:element name="wsInitTransactionInput" type="tns:wsInitTransactionInput"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="wsInitTransactionInput">
+<xs:sequence>
+<xs:element name="wSTransactionType" type="tns:wsTransactionType"/>
+<xs:element minOccurs="0" name="commerceId" type="xs:string"/>
+<xs:element minOccurs="0" name="buyOrder" type="xs:string"/>
+<xs:element minOccurs="0" name="sessionId" type="xs:string"/>
+<xs:element name="returnURL" type="xs:anyURI"/>
+<xs:element name="finalURL" type="xs:anyURI"/>
+<xs:element maxOccurs="unbounded" name="transactionDetails" type="tns:wsTransactionDetail"/>
+<xs:element minOccurs="0" name="wPMDetail" type="tns:wpmDetailInput"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="wpmDetailInput">
+<xs:sequence>
+<xs:element name="serviceId" type="xs:string"/>
+<xs:element name="cardHolderId" type="xs:string"/>
+<xs:element name="cardHolderName" type="xs:string"/>
+<xs:element name="cardHolderLastName1" type="xs:string"/>
+<xs:element name="cardHolderLastName2" type="xs:string"/>
+<xs:element name="cardHolderMail" type="xs:string"/>
+<xs:element name="cellPhoneNumber" type="xs:string"/>
+<xs:element name="expirationDate" type="xs:dateTime"/>
+<xs:element name="commerceMail" type="xs:string"/>
+<xs:element name="ufFlag" type="xs:boolean"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="initTransactionResponse">
+<xs:sequence>
+<xs:element minOccurs="0" name="return" type="tns:wsInitTransactionOutput"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="wsInitTransactionOutput">
+<xs:sequence>
+<xs:element minOccurs="0" name="token" type="xs:string"/>
+<xs:element minOccurs="0" name="url" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+<xs:simpleType name="wsTransactionType">
+<xs:restriction base="xs:string">
+<xs:enumeration value="TR_NORMAL_WS"/>
+<xs:enumeration value="TR_NORMAL_WS_WPM"/>
+<xs:enumeration value="TR_MALL_WS"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:schema>
+  </wsdl:types>
+  <wsdl:message name="acknowledgeTransactionResponse">
+    <wsdl:part element="tns:acknowledgeTransactionResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getTransactionResultResponse">
+    <wsdl:part element="tns:getTransactionResultResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="initTransaction">
+    <wsdl:part element="tns:initTransaction" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="acknowledgeTransaction">
+    <wsdl:part element="tns:acknowledgeTransaction" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getTransactionResult">
+    <wsdl:part element="tns:getTransactionResult" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="initTransactionResponse">
+    <wsdl:part element="tns:initTransactionResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="WSWebpayService">
+    <wsdl:operation name="getTransactionResult">
+      <wsdl:input message="tns:getTransactionResult" name="getTransactionResult">
+    </wsdl:input>
+      <wsdl:output message="tns:getTransactionResultResponse" name="getTransactionResultResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="acknowledgeTransaction">
+      <wsdl:input message="tns:acknowledgeTransaction" name="acknowledgeTransaction">
+    </wsdl:input>
+      <wsdl:output message="tns:acknowledgeTransactionResponse" name="acknowledgeTransactionResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="initTransaction">
+      <wsdl:input message="tns:initTransaction" name="initTransaction">
+    </wsdl:input>
+      <wsdl:output message="tns:initTransactionResponse" name="initTransactionResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="WSWebpayServiceImplServiceSoapBinding" type="tns:WSWebpayService">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="getTransactionResult">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getTransactionResult">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getTransactionResultResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="acknowledgeTransaction">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="acknowledgeTransaction">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="acknowledgeTransactionResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="initTransaction">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="initTransaction">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="initTransactionResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="WSWebpayServiceImplService">
+    <wsdl:port binding="tns:WSWebpayServiceImplServiceSoapBinding" name="WSWebpayServiceImplPort">
+      <soap:address location="https://webpay3gint.transbank.cl:443/WSWebpayTransaction/cxf/WSWebpayService"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
