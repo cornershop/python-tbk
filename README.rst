@@ -70,8 +70,8 @@ Specific soap requester logger is also defined by class name::
 
 🇪🇸
 
-Intalación
-==========
+Instalación
+===========
 
 Ejecuta::
 
