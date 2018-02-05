@@ -32,6 +32,7 @@ class SudsSoapClient(SoapClient):
         try:
             return method(method_input)
         except WebFault as webfault:
+            self.logger.error("Suds WebFault", exc_info=True)
             error, code = parse_suds_webfault(webfault.args[0])
             raise WebpayServiceException(error, code)
 
