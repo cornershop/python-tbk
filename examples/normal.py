@@ -3,7 +3,8 @@ import logging
 
 from flask import Flask, render_template, request, session
 
-from tbk import Commerce, WebpayNormal, INTEGRACION
+import tbk.services
+import tbk.commerce
 
 app = Flask(__name__)
 
@@ -11,7 +12,9 @@ app.secret_key = 'TBKSESSION'
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
-logging.getLogger("tbk.service").setLevel(logging.DEBUG)
+logging.getLogger("tbk").setLevel(logging.DEBUG)
+logging.getLogger('suds.transport.http').setLevel(logging.DEBUG)
+
 
 COMMERCE_CODE = "597020000541"
 
@@ -90,8 +93,14 @@ JvD7YLhPvCYKry7N6x3l
 -----END CERTIFICATE-----\
 """
 
-commerce = Commerce(COMMERCE_CODE, KEY_DATA, CERT_DATA, TBK_CERT_DATA, INTEGRACION)
-webpay_normal = WebpayNormal.init_for_commerce(commerce)
+commerce = tbk.commerce.Commerce(
+    commerce_code=COMMERCE_CODE,
+    key_data=KEY_DATA,
+    cert_data=CERT_DATA,
+    tbk_cert_data=TBK_CERT_DATA,
+    environment=tbk.INTEGRACION)
+
+webpay_service = tbk.services.WebpayService.init_for_commerce(commerce)
 
 
 @app.route("/")
@@ -103,7 +112,7 @@ def index():
 
 @app.route("/init", methods=['POST'])
 def init_transaction():
-    transaction = webpay_normal.init_transaction(
+    transaction = webpay_service.init_transaction(
         amount=request.form['amount'],
         buy_order=request.form['buy_order'],
         return_url='http://localhost:5000/return',
@@ -116,7 +125,7 @@ def init_transaction():
 @app.route("/return", methods=['POST'])
 def return_from_webpay():
     token = request.form['token_ws']
-    transaction = webpay_normal.get_transaction_result(token)
+    transaction = webpay_service.get_transaction_result(token)
     transaction_detail = transaction.detailOutput[0]
     transaction_detail = {
         'sharesNumber': transaction_detail.sharesNumber,
@@ -128,7 +137,7 @@ def return_from_webpay():
         'responseCode': transaction_detail.responseCode,
     }
     session['transaction_detail'] = transaction_detail
-    webpay_normal.acknowledge_transaction(token)
+    webpay_service.acknowledge_transaction(token)
     if transaction_detail['responseCode'] == 0:
         return render_template('normal/success.html', transaction=transaction, token=token)
     else:
