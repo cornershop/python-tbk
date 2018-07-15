@@ -44,8 +44,8 @@ class SudsWssePlugin(suds.plugin.MessagePlugin):
 
     def received(self, context):
         """Verify signature of incoming reply envelope."""
-        if context.reply:
-            verify_envelope_data(context.reply, self.tbk_cert)
+        if not context.reply or not verify_envelope_data(context.reply, self.tbk_cert):
+            context.reply = None
 
 
 def load_key_from_data(key_data, cert_data=None, password=None, key_format=xmlsec.KeyFormat.PEM):

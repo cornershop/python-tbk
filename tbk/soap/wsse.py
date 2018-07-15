@@ -24,10 +24,6 @@ WSSE_NS = WSS_BASE + 'oasis-200401-wss-wssecurity-secext-1.0.xsd'
 WSU_NS = WSS_BASE + 'oasis-200401-wss-wssecurity-utility-1.0.xsd'
 
 
-class SignatureVerificationFailed(Exception):
-    pass
-
-
 def sign_envelope_data(envelope_data, key):
     envelope = etree.fromstring(envelope_data)
     sign_envelope(envelope, key)
@@ -147,7 +143,7 @@ def sign_envelope(envelope, key):
 
 def verify_envelope_data(envelope_data, key):
     envelope = etree.fromstring(envelope_data)
-    verify_envelope(envelope, key)
+    return verify_envelope(envelope, key)
 
 
 def verify_envelope(envelope, key):
@@ -184,7 +180,9 @@ def verify_envelope(envelope, key):
     except xmlsec.Error:
         # Sadly xmlsec gives us no details about the reason for the failure, so
         # we have nothing to pass on except that verification failed.
-        raise SignatureVerificationFailed()
+        return False
+    else:
+        return True
 
 
 def sign_node(ctx, signature, target):

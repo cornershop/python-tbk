@@ -1,26 +1,26 @@
 
 import logging
 
-from .soap_clients import SoapClient
+from .soap import create_default_client, SoapRequestor
 
 
 class TBKWebService(object):
 
-    def __init__(self, commerce, soap_client):
-        # type: (Commerce, SoapClient) -> None
+    def __init__(self, commerce, soap_requestor):
         self.commerce = commerce
-        self.soap_client = soap_client
+        self.soap_requestor = soap_requestor
         self.logger = logging.getLogger('tbk.services.{}'.format(self.__class__.__name__))
 
     @classmethod
     def init_for_commerce(cls, commerce):
-        soap_client = SoapClient.create_default_client(
-            cls.get_wsdl_url_for_environent(commerce.environment),
-            commerce.key_data,
-            commerce.cert_data,
-            commerce.tbk_cert_data
+        soap_client = create_default_client(
+            wsdl_url=cls.get_wsdl_url_for_environent(commerce.environment),
+            key_data=commerce.key_data,
+            cert_data=commerce.cert_data,
+            tbk_cert_data=commerce.tbk_cert_data
         )
-        return cls(commerce, soap_client)
+        soap_requestor = SoapRequestor(soap_client)
+        return cls(commerce, soap_requestor)
 
     @classmethod
     def get_wsdl_url_for_environent(cls, environment):
@@ -42,13 +42,12 @@ class OneClickPaymentService(TBKWebService):
             'email': email,
             'responseURL': response_url
         }
-        one_click_inscription_input = self.soap_client.create_input('oneClickInscriptionInput', arguments)
-        return self.soap_client.request('initInscription', one_click_inscription_input)
+        one_click_inscription_input = self.soap_requestor.create_object('oneClickInscriptionInput', **arguments)
+        return self.soap_requestor.request('initInscription', one_click_inscription_input)
 
     def finish_inscription(self, token):
-        arguments = {'token': token}
-        one_click_finish_inscription_input = self.soap_client.create_input('oneClickFinishInscriptionInput', arguments)
-        return self.soap_client.request('finishInscription', one_click_finish_inscription_input)
+        finish_inscription_input = self.soap_requestor.create_object('oneClickFinishInscriptionInput', token=token)
+        return self.soap_requestor.request('finishInscription', finish_inscription_input)
 
     def authorize(self, buy_order, tbk_user, username, amount):
         arguments = {
@@ -57,21 +56,20 @@ class OneClickPaymentService(TBKWebService):
             'username': username,
             'amount': amount
         }
-        one_click_pay_input = self.soap_client.create_input('oneClickPayInput', arguments)
-        return self.soap_client.request('authorize', one_click_pay_input)
+        pay_input = self.soap_requestor.create_object('oneClickPayInput', **arguments)
+        return self.soap_requestor.request('authorize', pay_input)
 
     def code_reverse_oneclick(self, buyorder):
-        arguments = {'buyorder': buyorder}
-        one_click_reverse_input = self.soap_client.create_input('oneClickReverseInput', arguments)
-        return self.soap_client.request('codeReverseOneClick', one_click_reverse_input)
+        reverse_input = self.soap_requestor.create_object('oneClickReverseInput', buyorder=buyorder)
+        return self.soap_requestor.request('codeReverseOneClick', reverse_input)
 
     def remove_user(self, tbk_user, username):
         arguments = {
             'tbkUser': tbk_user,
             'username': username
         }
-        one_click_remove_user_input = self.soap_client.create_input('oneClickRemoveUserInput', arguments)
-        return self.soap_client.request('oneClickRemoveUser', one_click_remove_user_input)
+        one_click_remove_user_input = self.soap_requestor.create_object('oneClickRemoveUserInput', **arguments)
+        return self.soap_requestor.request('oneClickRemoveUser', one_click_remove_user_input)
 
 
 class WebpayService(TBKWebService):
@@ -89,25 +87,23 @@ class WebpayService(TBKWebService):
             'returnURL': return_url,
             'finalURL': final_url,
             'transactionDetails': [
-                (
+                self.soap_requestor.create_object(
                     'wsTransactionDetail',
-                    {
-                        'amount': amount,
-                        'commerceCode': self.commerce.commerce_code,
-                        'buyOrder': buy_order
-                    }
+                    amount=amount,
+                    commerceCode=self.commerce.commerce_code,
+                    buyOrder=buy_order
                 )
             ],
-            'wPMDetail': ('wpmDetailInput', {})
+            'wPMDetail': self.soap_requestor.create_object('wpmDetailInput')
         }
-        init_transaction_input = self.soap_client.create_input('wsInitTransactionInput', arguments)
-        return self.soap_client.request('initTransaction', init_transaction_input)
+        init_transaction_input = self.soap_requestor.create_object('wsInitTransactionInput', **arguments)
+        return self.soap_requestor.request('initTransaction', init_transaction_input)
 
     def get_transaction_result(self, token):
-        return self.soap_client.request('getTransactionResult', token)
+        return self.soap_requestor.request('getTransactionResult', token)
 
     def acknowledge_transaction(self, token):
-        return self.soap_client.request('acknowledgeTransaction', token)
+        return self.soap_requestor.request('acknowledgeTransaction', token)
 
 
 class CommerceIntegrationService(TBKWebService):
@@ -124,8 +120,8 @@ class CommerceIntegrationService(TBKWebService):
             'commerceId': self.commerce.commerce_code,
             'nullifyAmount': nullify_amount
         }
-        nullification_input = self.soap_client.create_input('nullificationInput', arguments)
-        return self.soap_client.request('nullify', nullification_input)
+        nullification_input = self.soap_requestor.create_object('nullificationInput', **arguments)
+        return self.soap_requestor.request('nullify', nullification_input)
 
     def capture(self, authorization_code, capture_amount, buy_order):
         arguments = {
@@ -134,8 +130,8 @@ class CommerceIntegrationService(TBKWebService):
             'buyOrder': buy_order,
             'captureAmount': capture_amount
         }
-        capture_input = self.soap_client.create_input('captureInput', arguments)
-        return self.soap_client.request('capture', capture_input)
+        capture_input = self.soap_requestor.create_object('captureInput', **arguments)
+        return self.soap_requestor.request('capture', capture_input)
 
 
 class CompleteWebpayService(TBKWebService):
