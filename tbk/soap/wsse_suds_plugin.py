@@ -1,6 +1,6 @@
 
 import xmlsec
-import suds
+import suds.plugin
 
 from .wsse import sign_envelope_data, verify_envelope_data
 

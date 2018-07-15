@@ -14,14 +14,15 @@ from setuptools import find_packages, setup, Command
 
 # Package meta-data.
 NAME = 'tbk'
-DESCRIPTION = 'Unofficial Webpay Web Services Python SDK.'
+DESCRIPTION = 'Unofficial TBK Web Services Python SDK.'
 URL = 'https://github.com/cornershop/python-tbk'
 EMAIL = 'tech@cornershopapp.com'
 AUTHOR = 'Cornershop'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    "xmlsec", "suds-jurko"
+    "suds-jurko==0.6",
+    "xmlsec==1.3.3"
 ]
 
 # The rest you shouldn't have to touch too much :)
@@ -101,7 +102,6 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: Implementation :: CPython',
-        'Programming Language :: Python :: Implementation :: PyPy'
     ],
     # $ setup.py publish support.
     cmdclass={

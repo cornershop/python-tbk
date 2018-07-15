@@ -1,16 +1,17 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title>Webpay Normal - Return Failure</title>
-</head>
-<body>
-	<h1>Webpay Normal - Return Failure</h1>
-	<dl>
-		{% for key, value in session['transaction_detail'].items() %}
-		<dt>{{key}}</dt>
-		<dd>{{value}}</dd>
-		{% endfor %}
-	</dl>
-	<a href="/">Go Back</a>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}Failure{% endblock title %}
+
+{% block header %}
+<h1>Normal<h1>
+<h2>Return Failure</h2>
+{% endblock header %}
+
+{% block content %}
+<dl>
+  {% for key in transaction_detail %}
+  <dt>{{key}}</dt>
+  <dd>{{value}}</dd>
+  {% endfor %}
+</dl>
+{% endblock %}

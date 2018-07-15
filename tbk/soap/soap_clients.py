@@ -14,7 +14,7 @@ import suds.transport.https
 import suds.wsse
 
 from .exceptions import (EnumValueDoesNotExist, SoapServerException, TypeDoesNotExist,
-                         MethodDoesNotExist, InvalidSignatureResponse)
+                         MethodDoesNotExist, InvalidSignatureResponse, SoapClientException)
 from .wsse_suds_plugin import SudsWssePlugin
 
 
@@ -35,6 +35,20 @@ class SoapClient(AbstractBaseClass):
     @abc.abstractmethod
     def request(self, method_name, method_input):
         pass
+
+
+class SudsRegisterRequestPlugin(suds.plugin.MessagePlugin):
+    def __init__(self):
+        self.last_sent = None
+        self.last_received = None
+
+    def sending(self, context):
+        """Sign outgoing message envelope."""
+        self.last_sent = context.envelope
+
+    def received(self, context):
+        """Verify signature of incoming reply envelope."""
+        self.last_received = context.reply
 
 
 class SudsSoapClient(SoapClient):
@@ -69,21 +83,38 @@ class SudsSoapClient(SoapClient):
         else:
             return method
 
-    def request(self, method_name, method_input):
-        method = self.get_method(method_name)
-        return self.do_request(method, method_input)
+    def request(self, request):
+        method = self.get_method(request.method_name)
+        return self.do_request(method, *request.args, **request.kwargs)
 
-    def do_request(self, method, method_input):
+    def do_request(self, method, *args, **kwargs):
         try:
-            result = method(method_input)
-        except TypeError:  # hack on invalid signature
+            result = method(*args, **kwargs)
+        except TypeError:  # hack for invalid signature
             raise InvalidSignatureResponse()
         except suds.WebFault as webfault:
             self.logger.exception("Suds WebFault")
             error, code = parse_tbk_error_message(webfault.fault.faultstring)
             raise SoapServerException(error, code)
         else:
-            return result
+            sent_envelope = self.get_last_sent_envelope()
+            received_envelope = self.get_last_received_envelope()
+            return result, sent_envelope, received_envelope
+
+    def get_last_sent_envelope(self):
+        plugin = self.get_register_plugin()
+        return plugin.last_sent
+
+    def get_last_received_envelope(self):
+        plugin = self.get_register_plugin()
+        return plugin.last_received
+
+    def get_register_plugin(self):
+        for plugin in self.client.options.plugins:
+            if isinstance(plugin, SudsRegisterRequestPlugin):
+                return plugin
+        self.logger.warning("Suds client must use a SudsRegisterRequestPlugin")
+        raise SoapClientException("Cannot retrieve envelopes content")
 
 
 def create_suds_client(wsdl_url, key_data, cert_data, tbk_cert_data):
@@ -94,11 +125,12 @@ def create_suds_client(wsdl_url, key_data, cert_data, tbk_cert_data):
         cert_data=cert_data,
         tbk_cert_data=tbk_cert_data,
     )
+    register_request_plugin = SudsRegisterRequestPlugin()
     return suds.client.Client(
         url=wsdl_url,
         transport=transport,
         wsse=wsse,
-        plugins=[wsse_plugin],
+        plugins=[wsse_plugin, register_request_plugin],
     )
 
 

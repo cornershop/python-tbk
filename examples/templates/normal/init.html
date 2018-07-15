@@ -1,16 +1,24 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title>Webpay Normal - Init Transaction</title>
-</head>
-<body>
-<h1>Webpay Normal - Init Transaction</h1>
+{% extends "base.html" %}
 
-<form method="POST" action="{{ transaction.url }}">
-	<input type="hidden" name="token_ws" value="{{ transaction.token }}">
-	<button type="submit">Proceed to Transbank</button>
+{% block title %}
+initTransaction
+{% endblock title %}
+
+{% block header %}
+<h1>Transacción Normal<h1>
+<h2>initTransaction</h2>
+{% endblock header %}
+
+{% block content %}
+<form method="POST" action="{{ transaction.url }}" class="pure-form pure-form-stacked">
+  <fieldset>
+    <label for="show">
+      Token:
+      <input size="64" type="value" name="show" value="{{ transaction.token }}" disabled="disabled">    
+    </label>
+    <input type="hidden" name="token_ws" value="{{ transaction.token }}">
+    <button type="submit">Send to TBK</button>
+  </fieldset>
 </form>
-
-<a href="/">Go Back</a>
-</body>
-</html>
+<code>{{transaction.envelope_received}}</code>
+{% endblock content%}

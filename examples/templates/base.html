@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{% block title %}{% endblock title %}</title>
+  {% block style %}
+  <style type="text/css">
+    body {
+      padding: 2em;
+    }
+  </style>
+  {% endblock style %}
+</head>
+<body class="yui3-normalized">
+
+{% block nav %}
+<nav class="steps">
+  <a href="/">Start</a>
+</nav>
+{% endblock nav %}
+
+{% block header %}
+{% endblock header %}
+
+{% block content %}
+{% endblock content%}
+
+</body>
+</html>

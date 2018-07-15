@@ -7,13 +7,12 @@ import tbk.services
 import tbk.commerce
 
 app = Flask(__name__)
-
 app.secret_key = 'TBKSESSION'
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 logging.getLogger("tbk").setLevel(logging.DEBUG)
-logging.getLogger('suds.transport.http').setLevel(logging.DEBUG)
+logging.getLogger('suds.transport.http').setLevel(logging.INFO)
 
 
 COMMERCE_CODE = "597020000541"
@@ -100,13 +99,11 @@ commerce = tbk.commerce.Commerce(
     tbk_cert_data=TBK_CERT_DATA,
     environment=tbk.INTEGRACION)
 
-webpay_service = tbk.services.WebpayService.init_for_commerce(commerce)
+webpay_service = tbk.services.WebpayNormal.init_for_commerce(commerce)
 
 
 @app.route("/")
 def index():
-    if 'transaction_detail' in session:
-        del session['transaction_detail']
     return render_template('normal/index.html')
 
 
@@ -126,22 +123,22 @@ def init_transaction():
 def return_from_webpay():
     token = request.form['token_ws']
     transaction = webpay_service.get_transaction_result(token)
-    transaction_detail = transaction.detailOutput[0]
-    transaction_detail = {
-        'sharesNumber': transaction_detail.sharesNumber,
-        'amount': transaction_detail.amount,
-        'commerceCode': transaction_detail.commerceCode,
-        'buyOrder': transaction_detail.buyOrder,
-        'authorizationCode': transaction_detail.authorizationCode,
-        'paymentTypeCode': transaction_detail.paymentTypeCode,
-        'responseCode': transaction_detail.responseCode,
-    }
-    session['transaction_detail'] = transaction_detail
+    transaction_detail = transaction['detailOutput'][0]
     webpay_service.acknowledge_transaction(token)
     if transaction_detail['responseCode'] == 0:
-        return render_template('normal/success.html', transaction=transaction, token=token)
+        return render_template(
+            'normal/success.html',
+            transaction=transaction,
+            transaction_detail=transaction_detail,
+            token=token
+        )
     else:
-        return render_template('normal/failure.html', transaction=transaction, token=token)
+        return render_template(
+            'normal/failure.html',
+            transaction=transaction,
+            transaction_detail=transaction_detail,
+            token=token
+        )
 
 
 @app.route("/final", methods=['POST'])
@@ -151,4 +148,4 @@ def final():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run()

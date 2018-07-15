@@ -4,6 +4,44 @@ import logging
 from .exceptions import SoapClientException
 
 
+class SoapRequest(object):
+
+    def __init__(self, method_name, args, kwargs):
+        self.method_name = method_name
+        self.args = args
+        self.kwargs = kwargs
+
+    def __str__(self):
+        arguments = ", ".join([
+            part for part in [
+                ", ".join(str(arg) for arg in self.args),
+                ", ".join(["=".join(map(str, items)) for items in self.kwargs.items()])
+            ] if part
+        ])
+        return "{method_name}({arguments})".format(
+            method_name=self.method_name,
+            arguments=arguments
+        )
+
+
+class SoapResponse(object):
+
+    def __init__(self, result, request, envelope_sent, envelope_received):
+        self.result = result
+        self.request = request
+        self.envelope_sent = envelope_sent
+        self.envelope_received = envelope_received
+
+    def __setitem__(self, key):
+        raise RuntimeError("Cannot set item to immutable dict SoapResponse")
+
+    def __getitem__(self, key):
+        return self.result[key]
+
+    def __str__(self):
+        return str(self.result)
+
+
 class SoapRequestor(object):
 
     def __init__(self, soap_client):
@@ -24,11 +62,16 @@ class SoapRequestor(object):
             self.logger.error("Cannot create instance of type `%s`", type_name)
             raise
 
-    def request(self, method_name, method_input):
+    def request(self, method_name, *args, **kwargs):
         try:
+            request = SoapRequest(
+                method_name=method_name,
+                args=args,
+                kwargs=kwargs
+            )
             self.logger.info("Starting request to method `%s`", method_name)
-            self.logger.debug(method_input)
-            result = self.soap_client.request(method_name, method_input)
+            self.logger.debug(request)
+            result, envelope_sent, envelope_received = self.soap_client.request(request)
         except SoapClientException:
             self.logger.exception("SOAP client exception on method `%s`", method_name)
             raise
@@ -37,6 +80,12 @@ class SoapRequestor(object):
                 "SOAP request method `%s` failed with unexpected exception", method_name)
             raise
         else:
+            response = SoapResponse(
+                result=result,
+                request=request,
+                envelope_sent=envelope_sent,
+                envelope_received=envelope_received
+            )
             self.logger.info("Successful request to method `%s`", method_name)
-            self.logger.debug(result)
-            return result
+            self.logger.debug(response)
+            return response

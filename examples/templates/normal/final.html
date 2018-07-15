@@ -1,17 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title>Webpay Normal - Final</title>
-</head>
-<body>
-	<h1>Webpay Normal - Final</h1>
+{% extends "base.html" %}
 
-	<dl>
-		{% for key, value in session['transaction_detail'].items() %}
-		<dt>{{key}}</dt>
-		<dd>{{value}}</dd>
-		{% endfor %}
-	</dl>
-	<a href="/">Go Back</a>
-</body>
-</html>
+{% block title %}Final{% endblock title %}
+
+{% block header %}
+<h1>Normal</h1>
+<h2>Final</h2>
+{% endblock header %}

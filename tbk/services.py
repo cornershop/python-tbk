@@ -79,8 +79,9 @@ class WebpayService(TBKWebService):
     WSDL_PRODUCCION = 'https://webpay3g.transbank.cl/WSWebpayTransaction/cxf/WSWebpayService?wsdl'
 
     def init_transaction(self, amount, buy_order, return_url, final_url, session_id=None):
+        transaction_type = self.soap_requestor.get_enum_value('wsTransactionType', 'TR_NORMAL_WS')
         arguments = {
-            'wSTransactionType': 'TR_NORMAL_WS',
+            'wSTransactionType': transaction_type,
             'commerceId': self.commerce.commerce_code,
             'buyOrder': buy_order,
             'sessionId': session_id,
@@ -140,14 +141,72 @@ class CompleteWebpayService(TBKWebService):
     WSDL_CERTIFICACION = 'https://webpay3gint.transbank.cl/WSWebpayTransaction/cxf/WSCompleteWebpayService?wsdl'
     WSDL_PRODUCCION = 'https://webpay3g.transbank.cl/WSWebpayTransaction/cxf/WSCompleteWebpayService?wsdl'
 
-    def init_complete_transaction(self, buy_order, card_expiration_date, cvv, card_number, session_id=None):
-        raise NotImplementedError
+    def init_complete_transaction(self, amount, buy_order, card_expiration_date, cvv, card_number, session_id=None):
+        transaction_type = self.soap_requestor.get_enum_value('wsCompleteTransactionType', 'TR_COMPLETA_WS')
 
-    def queryshare(self, buy_order, share_number):
-        raise NotImplementedError
+        card_detail_arguments = {
+            'cardExpirationDate': card_expiration_date,
+            'cvv': cvv,
+            'cardNumber': card_number
+        }
+        card_detail = self.soap_requestor.create_object(
+            'completeCardDetail', **card_detail_arguments)
 
-    def authorize(self, buy_order, grace_period, id_query_share, deferred_period_index):
-        raise NotImplementedError
+        transaction_details_arguments = {
+            'amount': amount,
+            'buyOrder': buy_order,
+            'commerceCode': self.commerce.commerce_code
+        }
+        transaction_details = self.soap_requestor.create_object(
+            'wsCompleteTransactionDetail', **transaction_details_arguments)
+
+        transaction_input_arguments = {
+            'transactionType': transaction_type,
+            'sessionId': session_id,
+            'cardDetail': card_detail,
+            'transactionDetails': transaction_details
+        }
+
+        transaction_input = self.soap_requestor.create_object(
+            'wsCompleteInitTransactionInput', **transaction_input_arguments)
+
+        return self.soap_requestor.request('initCompleteTransaction', transaction_input)
+
+    def queryshare(self, token, buy_order, share_number):
+        arguments = {
+            'token': token,
+            'buyOrder': buy_order,
+            'shareNumber': share_number
+        }
+        queryshare_input = self.soap_requestor.create_object(
+            'wsCompleteQueryShareInput', **arguments)
+
+        return self.soap_requestor.request('queryShare', queryshare_input)
+
+    def authorize(self, token, buy_order, grace_period, id_query_share, deferred_period_index):
+        query_share_input_arguments = {
+            'idQueryShare': id_query_share,
+            'deferredPeriodIndex': deferred_period_index
+        }
+        query_share_input = self.soap_requestor.create_object(
+            'wsCompleteQueryShareInput', **query_share_input_arguments)
+
+        payment_type_input_arguments = {
+            'buyOrder': buy_order,
+            'commerceCode': self.commerce.commerce_code,
+            'gracePeriod': grace_period,
+            'queryShareInput': query_share_input
+        }
+        payment_type_input = self.soap_requestor.create_object(
+            'wsCompletePaymentTypeInput', **payment_type_input_arguments)
+
+        authorize_arguments = {
+            'token': token,
+            'paymentTypeList': payment_type_input
+        }
+        authorize_input = self.soap_requestor.create_object('authorize', **authorize_arguments)
+
+        return self.soap_requestor.request('authorize', authorize_input)
 
     def acknowledge_transaction(self, token):
-        raise NotImplementedError
+        return self.soap_requestor.request('acknowledgeTransaction', token)
