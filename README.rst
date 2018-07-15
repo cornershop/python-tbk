@@ -55,9 +55,11 @@ Usage
 
 As simple as call (snakecased) webpay api methods::
 
-	>>> from tbk import WebpayNormal, Commerce, INTEGRACION
-	>>> commerce = commerce = Commerce(commerce_code, key_data, cert_data, tbk_cert_data, INTEGRACION)
-	>>> webpay_normal = WebpayNormal.init_for_commerce(commerce)
+	>>> from tbk.services import WebpayService
+	>>> from tbk.commerce import Commerce
+	>>> from tbk import INTEGRACION
+	>>> commerce = Commerce(commerce_code, key_data, cert_data, tbk_cert_data, INTEGRACION)
+	>>> webpay_normal = WebpayService.init_for_commerce(commerce)
 	>>> transaction = webpay_normal.init_transaction(amount, buy_order, return_url, final_url)
 	>>> print(transaction.token)
 	e87df74f7af4dcfdc1d17521b07413ff9a004a7b423dc47ad09f6a8166a73842
@@ -86,16 +88,17 @@ Loggers
 
 There are two levels of loggers::
 
-	tbk.service
-	tbk.service.soap
+	tbk.services
+	tbk.soap
 
 Specific service logger are defined by class name::
 
-	tbk.service.WebpayNormal
+	tbk.services.WebpayService
 
 Specific soap requester logger is also defined by class name::
 
-	tbk.service.soap.SudsSoapClient
+	tbk.soap.client.SudsSoapClient
+
 
 
 🇪🇸
@@ -113,9 +116,11 @@ Uso
 
 Tan simple como llamar los métodos del API de Webpay (pero snakecased)::
 
-	>>> from tbk import WebpayNormal, Commerce, INTEGRACION
-	>>> commerce = commerce = Commerce(commerce_code, key_data, cert_data, tbk_cert_data, INTEGRACION)
-	>>> webpay_normal = WebpayNormal.init_for_commerce(commerce)
+	>>> from tbk.services import WebpayService
+	>>> from tbk.commerce import Commerce
+	>>> from tbk import INTEGRACION
+	>>> commerce = Commerce(commerce_code, key_data, cert_data, tbk_cert_data, INTEGRACION)
+	>>> webpay_normal = WebpayService.init_for_commerce(commerce)
 	>>> transaction = webpay_normal.init_transaction(amount, buy_order, return_url, final_url)
 	>>> print(transaction.token)
 	e87df74f7af4dcfdc1d17521b07413ff9a004a7b423dc47ad09f6a8166a73842
@@ -144,14 +149,14 @@ Loggers
 
 Se encuentran definidos dos niveles de logger::
 
-	tbk.service
-	tbk.service.soap
+	tbk.services
+	tbk.soap
 
 El logger específico de un servicio está definido por su nombre de clase::
 
-	tbk.service.WebpayNormal
+	tbk.services.WebpayService
 
 El logger específico de soap está también definido por su nombre de clase::
 
-	tbk.service.soap.SudsSoapClient
+	tbk.soap.client.SudsSoapClient
 
