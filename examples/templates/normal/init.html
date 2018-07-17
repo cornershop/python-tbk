@@ -20,5 +20,12 @@ initTransaction
     <button type="submit">Send to TBK</button>
   </fieldset>
 </form>
-<code>{{transaction.envelope_received}}</code>
-{% endblock content%}
+<figure>
+  <caption>Received XML</caption>
+  <code>{{ transaction.envelope_received }}</code>	
+</figure>
+<figure>
+  <caption>Sent XML</caption>
+  <code>{{ transaction.envelope_sent }}</code>	
+</figure>
+{% endblock content %}

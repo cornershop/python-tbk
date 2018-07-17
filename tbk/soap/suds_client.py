@@ -26,12 +26,12 @@ class SudsSoapClient(SoapClient):
             cert_data=cert_data,
             tbk_cert_data=tbk_cert_data,
         )
-        self.register_request_plugin = SudsRegisterRequestPlugin()
+        self.history = SudsHistoryPlugin()
         self.client = suds.client.Client(
             url=wsdl_url,
             transport=self.transport,
             wsse=wsse,
-            plugins=[wsse_plugin, self.register_request_plugin],
+            plugins=[wsse_plugin, self.history],
         )
 
     def get_instance(self, type_name):
@@ -76,13 +76,13 @@ class SudsSoapClient(SoapClient):
             return result, sent_envelope, received_envelope
 
     def get_last_sent_envelope(self):
-        return self.register_request_plugin.last_sent
+        return self.history.last_sent
 
     def get_last_received_envelope(self):
-        return self.register_request_plugin.last_received
+        return self.history.last_received
 
 
-class SudsRegisterRequestPlugin(suds.plugin.MessagePlugin):
+class SudsHistoryPlugin(suds.plugin.MessagePlugin):
 
     def __init__(self):
         self.last_sent = None

@@ -95,9 +95,9 @@ Specific service logger are defined by class name::
 
 	tbk.services.WebpayService
 
-Specific soap requester logger is also defined by class name::
+Soap requests logging is defined in::
 
-	tbk.soap.client.SudsSoapClient
+	tbk.soap
 
 
 
@@ -156,7 +156,7 @@ El logger específico de un servicio está definido por su nombre de clase::
 
 	tbk.services.WebpayService
 
-El logger específico de soap está también definido por su nombre de clase::
+El logger específico para soap es el siguiente::
 
-	tbk.soap.client.SudsSoapClient
+	tbk.soap
 

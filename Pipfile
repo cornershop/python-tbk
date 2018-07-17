@@ -11,9 +11,11 @@ ipython = "*"
 nose = "*"
 flask = "*"
 docutils = "*"
+suds-jurko = "*"
 
 
 [packages]
 
-xmlsec = "*"
-suds-jurko = "*"
+zeep = ">=3.0.0"
+xmlsec = ">=1.3.3"
+lxml = ">=4.1.1"

@@ -1,9 +1,9 @@
 
 import zeep
 import zeep.plugins
-import zeep.wsse.utils
 import zeep.helpers
 import xmlsec
+import lxml.etree
 
 from .requestor import SoapClient
 from .wsse import sign_envelope, verify_envelope
@@ -14,9 +14,9 @@ from .utils import load_key_from_data, parse_tbk_error_message
 
 class ZeepSoapClient(SoapClient):
 
-    def __init__(self, wsdl_url, key_data, cert_data, tbk_cert_data):
+    def __init__(self, wsdl_url, key_data, cert_data, tbk_cert_data, password=None):
         super(ZeepSoapClient, self).__init__(wsdl_url, key_data, cert_data, tbk_cert_data)
-        wsse = ZeepWsseSignature.init_from_data(key_data, cert_data, tbk_cert_data)
+        wsse = ZeepWsseSignature.init_from_data(key_data, cert_data, tbk_cert_data, password=password)
         self.history = zeep.plugins.HistoryPlugin()
         self.client = zeep.Client(wsdl_url, wsse=wsse, plugins=[self.history])
 
@@ -32,17 +32,18 @@ class ZeepSoapClient(SoapClient):
         return self.create_object(enum_name, value)
 
     def request(self, method_name, *args, **kwargs):
-        method = self.get_method(method_name)
         try:
-            method = getattr(self.client.service, method_name)
+            method = self.get_method(method_name)
             result = method(*args, **kwargs)
         except zeep.exceptions.Fault as fault:
-            self.logger.exception("Suds WebFault")
+            self.logger.exception("Fault")
             error, code = parse_tbk_error_message(fault.message)
             raise SoapServerException(error, code)
         else:
             serialized = zeep.helpers.serialize_object(result)
-            return serialized, self.history.last_sent, self.history.last_received
+            last_sent = self.get_last_sent_envelope()
+            last_received = self.get_last_received_envelope()
+            return serialized, last_sent, last_received
 
     def get_method(self, method_name):
         try:
@@ -50,9 +51,14 @@ class ZeepSoapClient(SoapClient):
         except AttributeError:
             raise MethodDoesNotExist(method_name)
 
+    def get_last_sent_envelope(self):
+        return lxml.etree.tostring(self.history.last_sent['envelope'])
+
+    def get_last_received_envelope(self):
+        return lxml.etree.tostring(self.history.last_received['envelope'])
+
 
 class ZeepWsseSignature(object):
-    """Sign given SOAP envelope with WSSE sig using given key and cert."""
 
     def __init__(self, key, tbk_cert):
         self.key = key
@@ -65,7 +71,6 @@ class ZeepWsseSignature(object):
         return cls(key, tbk_cert)
 
     def apply(self, envelope, headers):
-        zeep.wsse.utils.get_security_header(envelope)  # create security header
         sign_envelope(envelope, self.key)
         return envelope, headers
 

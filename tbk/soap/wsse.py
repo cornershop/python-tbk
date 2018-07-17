@@ -1,16 +1,13 @@
-# -*- coding: utf-8 -*-
 """
-Custom implementation of wsse (without Timestamp) for Transbank Webpay Webservices.based.
+Custom implementation of wsse (without Timestamp) for Transbank Webpay Webservices.
 
 based on py-wsse suds
 """
-from __future__ import unicode_literals
-
 from uuid import uuid4
 
 import xmlsec
-
-from lxml import etree
+import lxml.etree
+import lxml.builder
 
 
 SOAP_NS = 'http://schemas.xmlsoap.org/soap/envelope/'
@@ -25,9 +22,9 @@ WSU_NS = WSS_BASE + 'oasis-200401-wss-wssecurity-utility-1.0.xsd'
 
 
 def sign_envelope_data(envelope_data, key):
-    envelope = etree.fromstring(envelope_data)
+    envelope = lxml.etree.fromstring(envelope_data)
     sign_envelope(envelope, key)
-    return etree.tostring(envelope)
+    return lxml.etree.tostring(envelope)
 
 
 def sign_envelope(envelope, key):
@@ -123,8 +120,7 @@ def sign_envelope(envelope, key):
     xmlsec.template.x509_data_add_certificate(x509_data)
 
     # Insert the Signature node in the wsse:Security header.
-    header = envelope.find(ns(SOAP_NS, 'Header'))
-    security = header.find(ns(WSSE_NS, 'Security'))
+    security = get_or_create_security_header(envelope)
     security.insert(0, signature)
 
     # Perform the actual signing.
@@ -137,12 +133,12 @@ def sign_envelope(envelope, key):
     # KeyInfo. The recipient expects this structure, but we can't rearrange
     # like this until after signing, because otherwise xmlsec won't populate
     # the X509 data (because it doesn't understand WSSE).
-    sec_token_ref = etree.SubElement(key_info, ns(WSSE_NS, 'SecurityTokenReference'))
+    sec_token_ref = lxml.etree.SubElement(key_info, ns(WSSE_NS, 'SecurityTokenReference'))
     sec_token_ref.append(x509_data)
 
 
 def verify_envelope_data(envelope_data, key):
-    envelope = etree.fromstring(envelope_data)
+    envelope = lxml.etree.fromstring(envelope_data)
     return verify_envelope(envelope, key)
 
 
@@ -162,8 +158,7 @@ def verify_envelope(envelope, key):
     ctx = xmlsec.SignatureContext()
 
     # Find each signed element and register its ID with the signing context.
-    refs = signature.xpath(
-        'ds:SignedInfo/ds:Reference', namespaces={'ds': DS_NS})
+    refs = signature.xpath('ds:SignedInfo/ds:Reference', namespaces={'ds': DS_NS})
     for ref in refs:
         # Get the reference URI and cut off the initial '#'
         referenced_id = ref.get('URI')[1:]
@@ -232,3 +227,22 @@ def ensure_id(node):
         id_val = get_unique_id()
         node.set(id_attr, id_val)
     return id_val
+
+
+def get_or_create_header(envelope):
+    header = envelope.find(ns(SOAP_NS, 'Header'))
+    if header is None:
+        soap_factory = lxml.builder.ElementMaker(namespace=SOAP_NS, nsmap={'wsse': SOAP_NS})
+        header = soap_factory.Header()
+        envelope.insert(0, header)
+    return header
+
+
+def get_or_create_security_header(envelope):
+    header = get_or_create_header(envelope)
+    security = header.find(ns(WSSE_NS, 'Security'))
+    if security is None:
+        wsse_factory = lxml.builder.ElementMaker(namespace=WSSE_NS, nsmap={'wsse': WSSE_NS})
+        security = wsse_factory.Security()
+        header.append(security)
+    return security

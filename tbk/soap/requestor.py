@@ -44,7 +44,8 @@ class SoapResponse(object):
         return self.result[key]
 
     def __str__(self):
-        return str(self.result)
+        import json
+        return json.dumps(self.result, indent=2)
 
 
 class SoapRequestor(object):
@@ -100,9 +101,9 @@ class SoapRequestor(object):
 
 
 class SoapClient(AbstractBaseClass):
-    def __init__(self, wsdl_url, key_data, cert_data, tbk_cert_data):
+    def __init__(self, wsdl_url, key_data, cert_data, tbk_cert_data, password=None):
         self.logger = logging.getLogger('tbk.soap.client.{}'.format(self.__class__.__name__))
-        self.logger.info("Initializing soap client with url %s", wsdl_url)
+        self.logger.info("Initializing soap client for wsdl: '%s'", wsdl_url)
 
     @abc.abstractmethod
     def get_enum_value(self, enum_name, value):
@@ -113,12 +114,12 @@ class SoapClient(AbstractBaseClass):
         pass
 
     @abc.abstractmethod
-    def request(self, method_name, method_input):
+    def request(self, method_name, *args, **kwargs):
         pass
 
 
-def create_soap_client(wsdl_url, key_data, cert_data, tbk_cert_data, client_class=None):
+def create_soap_client(wsdl_url, key_data, cert_data, tbk_cert_data, password=None, client_class=None):
     if client_class is None:
-        from .suds_client import SudsSoapClient
-        client_class = SudsSoapClient
-    return client_class(wsdl_url, key_data, cert_data, tbk_cert_data)
+        from .zeep_client import ZeepSoapClient
+        client_class = ZeepSoapClient
+    return client_class(wsdl_url, key_data, cert_data, tbk_cert_data, password)
