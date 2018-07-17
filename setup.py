@@ -21,8 +21,17 @@ AUTHOR = 'Cornershop'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    "suds-jurko==0.6",
-    "xmlsec==1.3.3"
+    "zeep>=3.0.0",
+    "xmlsec>=0.6.1",
+    "lxml>=4.1.1"
+]
+
+EXAMPLES_REQUIRE = [
+    "flask"
+]
+
+SUDS_REQUIRE = [
+    "suds-jurko>=0.6"
 ]
 
 # The rest you shouldn't have to touch too much :)
@@ -87,6 +96,10 @@ setup(
     url=URL,
     packages=find_packages(exclude=('tests',)),
     install_requires=REQUIRED,
+    extras_require={
+        'examples': EXAMPLES_REQUIRE,
+        'suds': SUDS_REQUIRE,
+    },
     include_package_data=True,
     license='MIT',
     classifiers=[
