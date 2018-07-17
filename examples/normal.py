@@ -99,7 +99,11 @@ commerce = tbk.commerce.Commerce(
     tbk_cert_data=TBK_CERT_DATA,
     environment=tbk.INTEGRACION)
 
-webpay_service = tbk.services.WebpayService.init_for_commerce(commerce)
+
+from tbk.soap.zeep_client import ZeepSoapClient
+
+
+webpay_service = tbk.services.WebpayService.init_for_commerce(commerce, ZeepSoapClient)
 
 
 @app.route("/")

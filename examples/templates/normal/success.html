@@ -9,9 +9,9 @@
 
 {% block content %}
 <dl>
-  {% for key, value in transaction_detail %}
+  {% for key in transaction_detail %}
   <dt>{{key}}</dt>
-  <dd>{{value}}</dd>
+  <dd>{{transaction_detail[key]}}</dd>
   {% endfor %}
 </dl>
 

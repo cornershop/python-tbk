@@ -1,5 +1,10 @@
 
 import logging
+import abc
+try:
+    AbstractBaseClass = abc.ABC
+except AttributeError:
+    AbstractBaseClass = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
 
 from .exceptions import SoapClientException
 
@@ -71,7 +76,10 @@ class SoapRequestor(object):
             )
             self.logger.info("Starting request to method `%s`", method_name)
             self.logger.debug(request)
-            result, envelope_sent, envelope_received = self.soap_client.request(request)
+            result, envelope_sent, envelope_received = self.soap_client.request(
+                method_name,
+                *args,
+                **kwargs)
         except SoapClientException:
             self.logger.exception("SOAP client exception on method `%s`", method_name)
             raise
@@ -89,3 +97,28 @@ class SoapRequestor(object):
             self.logger.info("Successful request to method `%s`", method_name)
             self.logger.debug(response)
             return response
+
+
+class SoapClient(AbstractBaseClass):
+    def __init__(self, wsdl_url, key_data, cert_data, tbk_cert_data):
+        self.logger = logging.getLogger('tbk.soap.client.{}'.format(self.__class__.__name__))
+        self.logger.info("Initializing soap client with url %s", wsdl_url)
+
+    @abc.abstractmethod
+    def get_enum_value(self, enum_name, value):
+        pass
+
+    @abc.abstractmethod
+    def create_object(self, type_name, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def request(self, method_name, method_input):
+        pass
+
+
+def create_soap_client(wsdl_url, key_data, cert_data, tbk_cert_data, client_class=None):
+    if client_class is None:
+        from .suds_client import SudsSoapClient
+        client_class = SudsSoapClient
+    return client_class(wsdl_url, key_data, cert_data, tbk_cert_data)

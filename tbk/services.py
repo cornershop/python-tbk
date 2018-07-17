@@ -93,10 +93,8 @@ class WebpayService(TBKWebService):
                     'wsTransactionDetail',
                     amount=amount,
                     commerceCode=self.commerce.commerce_code,
-                    buyOrder=buy_order
-                )
-            ],
-            'wPMDetail': self.soap_requestor.create_object('wpmDetailInput')
+                    buyOrder=buy_order)
+            ]
         }
         init_transaction_input = self.soap_requestor.create_object('wsInitTransactionInput', **arguments)
         return self.soap_requestor.request('initTransaction', init_transaction_input)

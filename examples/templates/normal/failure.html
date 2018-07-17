@@ -11,7 +11,7 @@
 <dl>
   {% for key in transaction_detail %}
   <dt>{{key}}</dt>
-  <dd>{{value}}</dd>
+  <dd>{{transaction_detail[key]}}</dd>
   {% endfor %}
 </dl>
 {% endblock %}
