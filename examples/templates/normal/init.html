@@ -14,7 +14,7 @@ initTransaction
   <fieldset>
     <label for="show">
       Token:
-      <input size="64" type="value" name="show" value="{{ transaction.token }}" disabled="disabled">    
+      <code>{{ transaction.token }}</code>
     </label>
     <input type="hidden" name="token_ws" value="{{ transaction.token }}">
     <button type="submit">Send to TBK</button>

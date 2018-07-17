@@ -1,7 +1,7 @@
 
 import logging
 
-from .soap import create_default_client, SoapRequestor
+from .soap import SoapRequestor, create_soap_client
 
 
 class TBKWebService(object):
@@ -12,12 +12,13 @@ class TBKWebService(object):
         self.logger = logging.getLogger('tbk.services.{}'.format(self.__class__.__name__))
 
     @classmethod
-    def init_for_commerce(cls, commerce):
-        soap_client = create_default_client(
+    def init_for_commerce(cls, commerce, soap_client_class=None):
+        soap_client = create_soap_client(
             wsdl_url=cls.get_wsdl_url_for_environent(commerce.environment),
             key_data=commerce.key_data,
             cert_data=commerce.cert_data,
-            tbk_cert_data=commerce.tbk_cert_data
+            tbk_cert_data=commerce.tbk_cert_data,
+            client_class=soap_client_class
         )
         soap_requestor = SoapRequestor(soap_client)
         return cls(commerce, soap_requestor)

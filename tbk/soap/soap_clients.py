@@ -18,8 +18,9 @@ from .exceptions import (EnumValueDoesNotExist, SoapServerException, TypeDoesNot
 from .wsse_suds_plugin import SudsWssePlugin
 
 
-def create_default_client(wsdl_url, key_data, cert_data, tbk_cert_data):
-    return SudsSoapClient(wsdl_url, key_data, cert_data, tbk_cert_data)
+def create_soap_client(wsdl_url, key_data, cert_data, tbk_cert_data, client_class=None):
+    client_class = client_class or DefaultSoapClient
+    return client_class(wsdl_url, key_data, cert_data, tbk_cert_data)
 
 
 class SoapClient(AbstractBaseClass):
@@ -115,6 +116,9 @@ class SudsSoapClient(SoapClient):
                 return plugin
         self.logger.warning("Suds client must use a SudsRegisterRequestPlugin")
         raise SoapClientException("Cannot retrieve envelopes content")
+
+
+DefaultSoapClient = SudsSoapClient
 
 
 def create_suds_client(wsdl_url, key_data, cert_data, tbk_cert_data):

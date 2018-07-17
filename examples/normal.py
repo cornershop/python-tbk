@@ -1,12 +1,12 @@
 
 import logging
 
-from flask import Flask, render_template, request, session
+import flask
 
 import tbk.services
 import tbk.commerce
 
-app = Flask(__name__)
+app = flask.Flask(__name__)
 app.secret_key = 'TBKSESSION'
 
 logger = logging.getLogger(__name__)
@@ -99,41 +99,41 @@ commerce = tbk.commerce.Commerce(
     tbk_cert_data=TBK_CERT_DATA,
     environment=tbk.INTEGRACION)
 
-webpay_service = tbk.services.WebpayNormal.init_for_commerce(commerce)
+webpay_service = tbk.services.WebpayService.init_for_commerce(commerce)
 
 
 @app.route("/")
 def index():
-    return render_template('normal/index.html')
+    return flask.render_template('normal/index.html')
 
 
 @app.route("/init", methods=['POST'])
 def init_transaction():
     transaction = webpay_service.init_transaction(
-        amount=request.form['amount'],
-        buy_order=request.form['buy_order'],
+        amount=flask.request.form['amount'],
+        buy_order=flask.request.form['buy_order'],
         return_url='http://localhost:5000/return',
         final_url='http://localhost:5000/final',
-        session_id=request.form['session_id']
+        session_id=flask.request.form['session_id']
     )
-    return render_template('normal/init.html', transaction=transaction)
+    return flask.render_template('normal/init.html', transaction=transaction)
 
 
 @app.route("/return", methods=['POST'])
 def return_from_webpay():
-    token = request.form['token_ws']
+    token = flask.request.form['token_ws']
     transaction = webpay_service.get_transaction_result(token)
     transaction_detail = transaction['detailOutput'][0]
     webpay_service.acknowledge_transaction(token)
     if transaction_detail['responseCode'] == 0:
-        return render_template(
+        return flask.render_template(
             'normal/success.html',
             transaction=transaction,
             transaction_detail=transaction_detail,
             token=token
         )
     else:
-        return render_template(
+        return flask.render_template(
             'normal/failure.html',
             transaction=transaction,
             transaction_detail=transaction_detail,
@@ -143,8 +143,8 @@ def return_from_webpay():
 
 @app.route("/final", methods=['POST'])
 def final():
-    token = request.form['token_ws']
-    return render_template('normal/final.html', token=token)
+    token = flask.request.form['token_ws']
+    return flask.render_template('normal/final.html', token=token)
 
 
 if __name__ == '__main__':

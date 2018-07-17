@@ -17,9 +17,9 @@
 
 <form method="POST" action="{{transaction.urlRedirection}}" class="pure-form pure-form-stacked">
   <fieldset>
-  <label for="show">
+    <label for="show">
       Token:
-      <input size="64" type="value" name="show" value="{{ token }}" disabled="disabled">    
+      <code>{{ token }}</code>
     </label>
     <input type="hidden" name="token_ws" value="{{ token }}">
     <button type="submit">Send to TBK</button>
