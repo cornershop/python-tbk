@@ -1,21 +1,21 @@
 [[source]]
-
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
-
 [dev-packages]
-
-ipython = "*"
+ipython = "<=5.7.0"
 nose = "*"
 flask = "*"
 docutils = "*"
 suds-jurko = "*"
-
+requests-mock = "*"
+mock = {markers="python_version < '3.5'"}
 
 [packages]
-
 zeep = ">=3.0.0"
 xmlsec = ">=1.3.3"
 lxml = ">=4.1.1"
+
+[scripts]
+tests = "python setup.py test"

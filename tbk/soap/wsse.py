@@ -151,12 +151,23 @@ def verify_envelope(envelope, key):
     Raise SignatureValidationFailed on failure, silent on success.
 
     """
-    header = envelope.find(ns(SOAP_NS, 'Header'))
-    security = header.find(ns(WSSE_NS, 'Security'))
-    signature = security.find(ns(DS_NS, 'Signature'))
 
+    signature = get_signature_node(envelope)
+    if signature is not None:
+        ctx = get_signature_context(signature, envelope)
+        ctx.key = key
+        try:
+            ctx.verify(signature)
+            return True
+        except xmlsec.Error:
+            # Sadly xmlsec gives us no details about the reason for the failure, so
+            # we have nothing to pass on except that verification failed.
+            return False
+    return False
+
+
+def get_signature_context(signature, envelope):
     ctx = xmlsec.SignatureContext()
-
     # Find each signed element and register its ID with the signing context.
     refs = signature.xpath('ds:SignedInfo/ds:Reference', namespaces={'ds': DS_NS})
     for ref in refs:
@@ -167,17 +178,7 @@ def verify_envelope(envelope, key):
             namespaces={'wsu': WSU_NS},
         )[0]
         ctx.register_id(referenced, 'Id', WSU_NS)
-
-    ctx.key = key
-
-    try:
-        ctx.verify(signature)
-    except xmlsec.Error:
-        # Sadly xmlsec gives us no details about the reason for the failure, so
-        # we have nothing to pass on except that verification failed.
-        return False
-    else:
-        return True
+    return ctx
 
 
 def sign_node(ctx, signature, target):
@@ -227,6 +228,16 @@ def ensure_id(node):
         id_val = get_unique_id()
         node.set(id_attr, id_val)
     return id_val
+
+
+def get_signature_node(envelope):
+    try:
+        header = envelope.find(ns(SOAP_NS, 'Header'))
+        security = header.find(ns(WSSE_NS, 'Security'))
+        return security.find(ns(DS_NS, 'Signature'))
+    except AttributeError:
+        pass
+    return None
 
 
 def get_or_create_header(envelope):

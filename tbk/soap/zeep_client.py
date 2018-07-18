@@ -2,10 +2,11 @@
 import zeep
 import zeep.plugins
 import zeep.helpers
+import zeep.exceptions
 import xmlsec
 import lxml.etree
 
-from .requestor import SoapClient
+from . import SoapClient
 from .wsse import sign_envelope, verify_envelope
 from .exceptions import (InvalidSignatureResponse, SoapServerException, MethodDoesNotExist,
                          TypeDoesNotExist)
@@ -23,7 +24,7 @@ class ZeepSoapClient(SoapClient):
     def create_object(self, type_name, *args, **kwargs):
         try:
             object_type = self.client.get_type('ns0:{}'.format(type_name))
-        except LookupError:
+        except zeep.exceptions.LookupError:
             raise TypeDoesNotExist(type_name)
         else:
             return object_type(*args, **kwargs)
