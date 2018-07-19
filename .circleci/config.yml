@@ -6,6 +6,7 @@ jobs:
       - image: circleci/python:3.6
     steps:
       - checkout
+      - run: python setup.py egg_info
       - run: python setup.py test
 
   tests-27:
@@ -13,6 +14,7 @@ jobs:
       - image: circleci/python:2.7
     steps:
       - checkout
+      - run: python setup.py egg_info
       - run: python setup.py test
 
 workflows:
