@@ -6,6 +6,8 @@ jobs:
       - image: circleci/python:3.6
     steps:
       - checkout
+      - run: sudo apt-get update
+      - run: sudo apt-get install libxmlsec1-dev
       - run: python setup.py egg_info
       - run: python setup.py test
 
@@ -14,6 +16,8 @@ jobs:
       - image: circleci/python:2.7
     steps:
       - checkout
+      - run: sudo apt-get update
+      - run: sudo apt-get install libxmlsec1-dev
       - run: python setup.py egg_info
       - run: python setup.py test
 
