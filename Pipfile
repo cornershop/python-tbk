@@ -11,6 +11,7 @@ docutils = "*"
 suds-jurko = "*"
 requests-mock = "*"
 mock = {markers="python_version < '3.5'"}
+coverage = "*"
 
 [packages]
 zeep = ">=3.0.0"

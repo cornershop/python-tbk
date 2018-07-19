@@ -8,8 +8,7 @@ jobs:
       - checkout
       - run: sudo apt-get update
       - run: sudo apt-get install libxmlsec1-dev
-      - run: python setup.py egg_info
-      - run: python setup.py test
+      - run: python setup.py nosetests
 
   tests-27:
     docker:
@@ -18,8 +17,7 @@ jobs:
       - checkout
       - run: sudo apt-get update
       - run: sudo apt-get install libxmlsec1-dev
-      - run: python setup.py egg_info
-      - run: python setup.py test
+      - run: python setup.py nosetests
 
 workflows:
   version: 2

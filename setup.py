@@ -34,6 +34,13 @@ SUDS_REQUIRE = [
     "suds-jurko>=0.6"
 ]
 
+TESTS_REQUIREMENTS = [
+    "nose>=1.0",
+    "coverage",
+    "mock",
+    "requests_mock"
+]
+
 # The rest you shouldn't have to touch too much :)
 # ------------------------------------------------
 # Except, perhaps the License and Trove Classifiers!
@@ -100,6 +107,7 @@ setup(
         'examples': EXAMPLES_REQUIRE,
         'suds': SUDS_REQUIRE,
     },
+    setup_requires=TESTS_REQUIREMENTS,
     include_package_data=True,
     license='MIT',
     classifiers=[
