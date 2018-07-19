@@ -89,7 +89,7 @@ class SoapRequestor(object):
             self.logger.info("Starting request to method `%s`", method_name)
             self.logger.debug(request)
             result, envelope_sent, envelope_received = self.soap_client.request(
-                method_name=method_name,
+                method_name,
                 *args,
                 **kwargs)
         except SoapClientException:

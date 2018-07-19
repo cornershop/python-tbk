@@ -4,10 +4,11 @@ import copy
 
 import requests_mock
 import xmlsec
+import zeep.exceptions
 
 from tbk.soap import SoapClient
 from tbk.soap.zeep_client import ZeepSoapClient, ZeepWsseSignature
-from tbk.soap.exceptions import InvalidSignatureResponse, TypeDoesNotExist
+from tbk.soap.exceptions import InvalidSignatureResponse, TypeDoesNotExist, SoapServerException
 from tbk.soap.wsse import sign_envelope, verify_envelope
 from tbk.soap.utils import load_key_from_data
 
@@ -61,6 +62,20 @@ class ZeepClientTest(unittest.TestCase):
         zeep_client = ZeepSoapClient(self.wsdl_url, self.key_data, self.cert_data, self.tbk_cert_data)
 
         self.assertRaises(TypeError, zeep_client.create_object, 'cardDetail', does_not_exist='1234')
+
+    def test_request_server_exception(self, requests):
+        zeep_client = ZeepSoapClient(self.wsdl_url, self.key_data, self.cert_data, self.tbk_cert_data)
+        method = mock.Mock()
+        method_name = 'methodName'
+        setattr(zeep_client.client.service, method_name, method)
+        message = '<!-- Invalid amount(304) -->'
+        code = 'soap:Server'
+        method.side_effect = zeep.exceptions.Fault(message, code)
+
+        with self.assertRaises(SoapServerException) as context:
+            zeep_client.request(method_name)
+        self.assertEqual(context.exception.error, 'Invalid amount')
+        self.assertEqual(context.exception.code, 304)
 
     def test_request_verified(self, requests):
         expected_response = get_fixture_data('acknowledgeTransaction.response.xml').encode('utf-8')
