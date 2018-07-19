@@ -28,6 +28,11 @@ class SoapRequest(object):
             arguments=arguments
         )
 
+    def __eq__(self, other):
+        return self.method_name == other.method_name \
+            and self.args == other.args \
+            and self.kwargs == other.kwargs
+
 
 class SoapResponse(object):
 
@@ -44,8 +49,14 @@ class SoapResponse(object):
         return self.result[key]
 
     def __str__(self):
-        import json
-        return json.dumps(self.result, indent=2)
+        return str(self.result)
+
+    def __eq__(self, other):
+        return self.result == other.result 
+        # \
+        #     and self.request == other.request \
+        #     and self.envelope_sent == other.envelope_sent \
+        #     and self.envelope_received == other.envelope_received
 
 
 class SoapRequestor(object):
@@ -61,9 +72,9 @@ class SoapRequestor(object):
             self.logger.error("Cannot get `%s` from enum `%s`", value, enum_name)
             raise
 
-    def create_object(self, type_name, **kwargs):
+    def create_object(self, type_name, *args, **kwargs):
         try:
-            return self.soap_client.create_object(type_name, **kwargs)
+            return self.soap_client.create_object(type_name, *args, **kwargs)
         except SoapClientException:
             self.logger.error("Cannot create instance of type `%s`", type_name)
             raise
@@ -78,7 +89,7 @@ class SoapRequestor(object):
             self.logger.info("Starting request to method `%s`", method_name)
             self.logger.debug(request)
             result, envelope_sent, envelope_received = self.soap_client.request(
-                method_name,
+                method_name=method_name,
                 *args,
                 **kwargs)
         except SoapClientException:
@@ -110,7 +121,7 @@ class SoapClient(AbstractBaseClass):
         pass
 
     @abc.abstractmethod
-    def create_object(self, type_name, **kwargs):
+    def create_object(self, type_name, *args, **kwargs):
         pass
 
     @abc.abstractmethod
