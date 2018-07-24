@@ -102,7 +102,7 @@ class ZeepClientTest(unittest.TestCase):
             content=expected_response)
 
         with mock.patch('tbk.soap.zeep_client.verify_envelope', return_value=False):
-            self.assertRaises(InvalidSignatureResponse, zeep_client.request, 'acknowledgeTransaction', 'token')
+            self.assertRaises(InvalidSignatureResponse, self.zeep_client.request, 'acknowledgeTransaction', 'token')
 
     @mock.patch('tbk.soap.zeep_client.verify_envelope', return_value=True)
     def test_request_sent_received_data(self, requests, __):
