@@ -3,12 +3,14 @@ import logging
 import abc
 
 try:
+    # noinspection PyUnresolvedReferences
     AbstractBaseClass = abc.ABC
 except AttributeError:
     AbstractBaseClass = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
 
 
 class SoapClient(AbstractBaseClass):
+    # noinspection PyUnusedLocal
     def __init__(self, wsdl_url, key_data, cert_data, tbk_cert_data, password=None):
         self.logger = logging.getLogger('tbk.soap.client.{}'.format(self.__class__.__name__))
         self.logger.info("Initializing soap client for wsdl: '%s'", wsdl_url)

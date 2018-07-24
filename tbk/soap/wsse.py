@@ -11,13 +11,10 @@ from .utils import create_xml_element
 
 
 SOAP_NS = 'http://schemas.xmlsoap.org/soap/envelope/'
-# xmldsig
 DS_NS = 'http://www.w3.org/2000/09/xmldsig#'
 
 WSS_BASE = 'http://docs.oasis-open.org/wss/2004/01/'
-# WS-Security
 WSSE_NS = WSS_BASE + 'oasis-200401-wss-wssecurity-secext-1.0.xsd'
-# WS-Utility
 WSU_NS = WSS_BASE + 'oasis-200401-wss-wssecurity-utility-1.0.xsd'
 
 
@@ -198,8 +195,8 @@ def sign_node(ctx, signature, target):
     ctx.register_id(target, 'Id', WSU_NS)
 
 
-def ns(namespace, tagname):
-    return '{%s}%s' % (namespace, tagname)
+def ns(namespace, tag_name):
+    return '{%s}%s' % (namespace, tag_name)
 
 
 def get_unique_id():

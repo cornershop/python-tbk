@@ -1,17 +1,18 @@
 
 import re
-import abc
 
 import xmlsec
 try:
     # Note: we will try to use lxml as first choice
     # because it is fast and probably installed with zeep
-    from lxml import etree as ElementTree
+    from lxml import etree
 except ImportError:  # pragma: no cover
     try:
-        import xml.etree.cElementTree as ElementTree
+        # noinspection PyPep8Naming
+        import xml.etree.cElementTree as etree  # noqa
     except ImportError:
-        import xml.etree.ElementTree as ElementTree
+        # noinspection PyPep8Naming
+        import xml.etree.ElementTree as etree  # noqa
 
 
 def parse_tbk_error_message(raw_message):
@@ -43,8 +44,8 @@ def load_key_from_data(key_data, cert_data=None, password=None, key_format='PEM'
 
 
 def xml_to_string(tree):
-    return ElementTree.tostring(tree)
+    return etree.tostring(tree)
 
 
 def create_xml_element(tag_name, nsmap=None):
-    return ElementTree.Element(tag_name, nsmap=nsmap)
+    return etree.Element(tag_name, nsmap=nsmap)

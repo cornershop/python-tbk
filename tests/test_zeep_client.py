@@ -26,18 +26,18 @@ class ZeepClientTest(unittest.TestCase):
 
         self.zeep_client = ZeepSoapClient(self.wsdl_url, self.key_data, self.cert_data, self.tbk_cert_data)
 
-    def test_init(self, requests):
+    def test_init(self, __):
         self.assertIsInstance(self.zeep_client, SoapClient)
 
-    def test_get_enum_value(self, requests):
+    def test_get_enum_value(self, __):
         for value in ('TR_NORMAL_WS', 'TR_NORMAL_WS_WPM', 'TR_MALL_WS'):
             enum_value = self.zeep_client.get_enum_value('wsTransactionType', value)
             self.assertEqual(value, enum_value)
 
-    def test_get_enum_value_type_error(self, requests):
+    def test_get_enum_value_type_error(self, __):
         self.assertRaises(TypeDoesNotExist, self.zeep_client.get_enum_value, 'does_not_exist', 'TR_NORMAL_WS')
 
-    def test_create_object(self, requests):
+    def test_create_object(self, __):
         client = self.zeep_client.client
         card_detail_type = client.get_type('ns0:cardDetail')
         expected = card_detail_type(cardNumber='1234', cardExpirationDate='12/20')
@@ -46,19 +46,19 @@ class ZeepClientTest(unittest.TestCase):
 
         self.assertEqual(expected, new_object)
 
-    def test_create_object_type_error(self, requests):
+    def test_create_object_type_error(self, __):
         self.assertRaises(
             TypeDoesNotExist,
             self.zeep_client.create_object, 'does_not_exist', cardNumber='1234', cardExpirationDate='12/20')
 
-    def test_create_object_arguments_error(self, requests):
+    def test_create_object_arguments_error(self, __):
         self.assertRaises(TypeError, self.zeep_client.create_object, 'cardDetail', does_not_exist='1234')
 
-    def test_request_wrong_method(self, requests):
+    def test_request_wrong_method(self, __):
         with self.assertRaises(MethodDoesNotExist):
             self.zeep_client.request('wrong_method_name', 1)
 
-    def test_request_server_exception(self, requests):
+    def test_request_server_exception(self, __):
         method = mock.Mock()
         method_name = 'methodName'
         setattr(self.zeep_client.client.service, method_name, method)
@@ -83,7 +83,7 @@ class ZeepClientTest(unittest.TestCase):
             self.assertEqual(1, verifier.call_count)
 
     @mock.patch('tbk.soap.zeep_client.verify_envelope', return_value=True)
-    def test_request_with_signature(self, requests, __):
+    def test_request_with_signature(self, requests, ___):
         expected_response = get_fixture_data('acknowledgeTransaction.response.xml').encode('utf-8')
         requests.register_uri(
             'POST',

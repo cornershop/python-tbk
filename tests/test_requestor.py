@@ -87,7 +87,7 @@ class SoapRequestorTest(unittest.TestCase):
 
         requestor = SoapRequestor(self.soap_client)
         with self.assertRaises(SoapServerException) as ctx:
-            requestor.request('methodName', 'arg', kw = 'kw')
+            requestor.request('methodName', 'arg', kw='kw')
         self.assertEqual(123, ctx.exception.code)
         self.assertEqual('code', ctx.exception.error)
 
@@ -96,8 +96,8 @@ class SoapRequestorTest(unittest.TestCase):
         request.side_effect = Exception
 
         requestor = SoapRequestor(self.soap_client)
-        with self.assertRaises(Exception) as ctx:
-            requestor.request('methodName', 'arg', kw = 'kw')
+        with self.assertRaises(Exception):
+            requestor.request('methodName', 'arg', kw='kw')
 
     def assert_equal_response(self, first, second, msg=None):
         self.assertEqual(first.result, second.result, msg)
