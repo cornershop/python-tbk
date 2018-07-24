@@ -2,12 +2,17 @@
 import unittest
 
 from tbk.soap.exceptions import SoapClientException, SoapServerException
-from tbk.soap.requestor import SoapRequestor, SoapClient, SoapRequest, SoapResponse
+from tbk.soap import SoapRequestor, SoapRequest, SoapResponse, SoapClient
 
 from .utils import mock
 
 
 class SoapRequestorTest(unittest.TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super(SoapRequestorTest, self).__init__(*args, **kwargs)
+        self.addTypeEqualityFunc(SoapResponse, 'assert_equal_response')
+        self.addTypeEqualityFunc(SoapRequest, 'assert_equal_request')
 
     def setUp(self):
         self.soap_client = mock.MagicMock(spec=SoapClient)
@@ -59,7 +64,7 @@ class SoapRequestorTest(unittest.TestCase):
         mocked_envelope_sent = mock.Mock()
         mocked_envelope_received = mock.Mock()
         request.return_value = (mocked_result, mocked_envelope_sent, mocked_envelope_received)
-        args = ('arg')
+        args = ('arg',)
         kwargs = {'kw': 'kw'}
         expected_request = SoapRequest(
             method_name='methodName',
@@ -76,9 +81,42 @@ class SoapRequestorTest(unittest.TestCase):
 
         self.assertEqual(expected_response, response)
 
-    def test_request_exception(self):
+    def test_request_server_exception(self):
         request = self.soap_client.request
-        request.side_effect = SoapServerException(123, 'code')
+        request.side_effect = SoapServerException('code', 123)
 
         requestor = SoapRequestor(self.soap_client)
-        self.assertRaises(SoapServerException, requestor.request, 'methodName', 'arg', kw='kw')
+        with self.assertRaises(SoapServerException) as ctx:
+            requestor.request('methodName', 'arg', kw = 'kw')
+        self.assertEqual(123, ctx.exception.code)
+        self.assertEqual('code', ctx.exception.error)
+
+    def test_request_exception(self):
+        request = self.soap_client.request
+        request.side_effect = Exception
+
+        requestor = SoapRequestor(self.soap_client)
+        with self.assertRaises(Exception) as ctx:
+            requestor.request('methodName', 'arg', kw = 'kw')
+
+    def assert_equal_response(self, first, second, msg=None):
+        self.assertEqual(first.result, second.result, msg)
+        self.assertEqual(first.envelope_sent, second.envelope_sent, msg)
+        self.assertEqual(first.envelope_received, second.envelope_received, msg)
+        self.assertEqual(first.request, second.request, msg)
+
+    def assert_equal_request(self, first, second, msg=None):
+        self.assertEqual(first.method_name, second.method_name, msg)
+        self.assertEqual(first.args, second.args, msg)
+        self.assertEqual(first.kwargs, second.kwargs, msg)
+
+
+class SoapResponseTest(unittest.TestCase):
+
+    def test_get_item(self):
+        request = mock.Mock(spec=SoapRequest)
+        key = mock.Mock(spec=str)
+        item = mock.Mock()
+        result = {key: item}
+        response = SoapResponse(request=request, result=result, envelope_received=None, envelope_sent=None)
+        self.assertEqual(item, response[key])

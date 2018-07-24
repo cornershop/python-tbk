@@ -1,16 +1,15 @@
 
-import unittest
 import copy
+import unittest
 
 import requests_mock
-import xmlsec
 import zeep.exceptions
 
 from tbk.soap import SoapClient
-from tbk.soap.zeep_client import ZeepSoapClient, ZeepWsseSignature
-from tbk.soap.exceptions import InvalidSignatureResponse, TypeDoesNotExist, SoapServerException
-from tbk.soap.wsse import sign_envelope, verify_envelope
+from tbk.soap.exceptions import InvalidSignatureResponse, TypeDoesNotExist, SoapServerException, MethodDoesNotExist
 from tbk.soap.utils import load_key_from_data
+from tbk.soap.wsse import sign_envelope, verify_envelope
+from tbk.soap.zeep_client import ZeepSoapClient, ZeepWsseSignature
 
 from .utils import mock, get_fixture_url, get_fixture_data, assert_equal_xml, get_xml_envelope
 
@@ -25,55 +24,50 @@ class ZeepClientTest(unittest.TestCase):
         self.cert_data = get_fixture_data('597020000547.crt')
         self.tbk_cert_data = get_fixture_data('tbk.pem')
 
+        self.zeep_client = ZeepSoapClient(self.wsdl_url, self.key_data, self.cert_data, self.tbk_cert_data)
+
     def test_init(self, requests):
-        zeep_client = ZeepSoapClient(self.wsdl_url, self.key_data, self.cert_data, self.tbk_cert_data)
-        self.assertIsInstance(zeep_client, SoapClient)
+        self.assertIsInstance(self.zeep_client, SoapClient)
 
     def test_get_enum_value(self, requests):
-        zeep_client = ZeepSoapClient(self.wsdl_url, self.key_data, self.cert_data, self.tbk_cert_data)
-
         for value in ('TR_NORMAL_WS', 'TR_NORMAL_WS_WPM', 'TR_MALL_WS'):
-            enum_value = zeep_client.get_enum_value('wsTransactionType', value)
+            enum_value = self.zeep_client.get_enum_value('wsTransactionType', value)
             self.assertEqual(value, enum_value)
 
     def test_get_enum_value_type_error(self, requests):
-        zeep_client = ZeepSoapClient(self.wsdl_url, self.key_data, self.cert_data, self.tbk_cert_data)
-
-        self.assertRaises(TypeDoesNotExist, zeep_client.get_enum_value, 'does_not_exist', 'TR_NORMAL_WS')
+        self.assertRaises(TypeDoesNotExist, self.zeep_client.get_enum_value, 'does_not_exist', 'TR_NORMAL_WS')
 
     def test_create_object(self, requests):
-        zeep_client = ZeepSoapClient(self.wsdl_url, self.key_data, self.cert_data, self.tbk_cert_data)
-        client = zeep_client.client
-        cardDetail = client.get_type('ns0:cardDetail')
-        expected = cardDetail(cardNumber='1234', cardExpirationDate='12/20')
+        client = self.zeep_client.client
+        card_detail_type = client.get_type('ns0:cardDetail')
+        expected = card_detail_type(cardNumber='1234', cardExpirationDate='12/20')
 
-        new_object = zeep_client.create_object('cardDetail', cardNumber='1234', cardExpirationDate='12/20')
+        new_object = self.zeep_client.create_object('cardDetail', cardNumber='1234', cardExpirationDate='12/20')
 
         self.assertEqual(expected, new_object)
 
     def test_create_object_type_error(self, requests):
-        zeep_client = ZeepSoapClient(self.wsdl_url, self.key_data, self.cert_data, self.tbk_cert_data)
-
         self.assertRaises(
             TypeDoesNotExist,
-            zeep_client.create_object, 'does_not_exist', cardNumber='1234', cardExpirationDate='12/20')
+            self.zeep_client.create_object, 'does_not_exist', cardNumber='1234', cardExpirationDate='12/20')
 
     def test_create_object_arguments_error(self, requests):
-        zeep_client = ZeepSoapClient(self.wsdl_url, self.key_data, self.cert_data, self.tbk_cert_data)
+        self.assertRaises(TypeError, self.zeep_client.create_object, 'cardDetail', does_not_exist='1234')
 
-        self.assertRaises(TypeError, zeep_client.create_object, 'cardDetail', does_not_exist='1234')
+    def test_request_wrong_method(self, requests):
+        with self.assertRaises(MethodDoesNotExist):
+            self.zeep_client.request('wrong_method_name', 1)
 
     def test_request_server_exception(self, requests):
-        zeep_client = ZeepSoapClient(self.wsdl_url, self.key_data, self.cert_data, self.tbk_cert_data)
         method = mock.Mock()
         method_name = 'methodName'
-        setattr(zeep_client.client.service, method_name, method)
+        setattr(self.zeep_client.client.service, method_name, method)
         message = '<!-- Invalid amount(304) -->'
         code = 'soap:Server'
         method.side_effect = zeep.exceptions.Fault(message, code)
 
         with self.assertRaises(SoapServerException) as context:
-            zeep_client.request(method_name)
+            self.zeep_client.request(method_name)
         self.assertEqual(context.exception.error, 'Invalid amount')
         self.assertEqual(context.exception.code, 304)
 
@@ -83,10 +77,10 @@ class ZeepClientTest(unittest.TestCase):
             'POST',
             'https://webpay3g.transbank.cl:443/WSWebpayTransaction/cxf/WSWebpayService',
             content=expected_response)
-        zeep_client = ZeepSoapClient(self.wsdl_url, self.key_data, self.cert_data, self.tbk_cert_data)
 
-        with mock.patch('tbk.soap.zeep_client.verify_envelope', return_value=True):
-            zeep_client.request('acknowledgeTransaction', 'token')
+        with mock.patch('tbk.soap.zeep_client.verify_envelope', return_value=True) as verifier:
+            self.zeep_client.request('acknowledgeTransaction', 'token')
+            self.assertEqual(1, verifier.call_count)
 
     @mock.patch('tbk.soap.zeep_client.verify_envelope', return_value=True)
     def test_request_with_signature(self, requests, __):
@@ -95,10 +89,9 @@ class ZeepClientTest(unittest.TestCase):
             'POST',
             'https://webpay3g.transbank.cl:443/WSWebpayTransaction/cxf/WSWebpayService',
             content=expected_response)
-        zeep_client = ZeepSoapClient(self.wsdl_url, self.key_data, self.cert_data, self.tbk_cert_data)
 
         with mock.patch('tbk.soap.zeep_client.sign_envelope', return_value=None) as signer:
-            zeep_client.request('acknowledgeTransaction', 'token')
+            self.zeep_client.request('acknowledgeTransaction', 'token')
             self.assertEqual(1, signer.call_count)
 
     def test_request_not_verified(self, requests):
@@ -107,28 +100,26 @@ class ZeepClientTest(unittest.TestCase):
             'POST',
             'https://webpay3g.transbank.cl:443/WSWebpayTransaction/cxf/WSWebpayService',
             content=expected_response)
-        zeep_client = ZeepSoapClient(self.wsdl_url, self.key_data, self.cert_data, self.tbk_cert_data)
 
         with mock.patch('tbk.soap.zeep_client.verify_envelope', return_value=False):
             self.assertRaises(InvalidSignatureResponse, zeep_client.request, 'acknowledgeTransaction', 'token')
 
     @mock.patch('tbk.soap.zeep_client.verify_envelope', return_value=True)
     def test_request_sent_received_data(self, requests, __):
-        zeep_client = ZeepSoapClient(self.wsdl_url, self.key_data, self.cert_data, self.tbk_cert_data)
         expected_response = get_fixture_data('acknowledgeTransaction.response.xml').encode('utf-8')
         requests.register_uri(
             'POST',
             'https://webpay3g.transbank.cl:443/WSWebpayTransaction/cxf/WSWebpayService',
             content=expected_response)
 
-        acknowledgeTransaction = zeep_client.client.service.acknowledgeTransaction
+        acknowledge_transaction_method = self.zeep_client.client.service.acknowledgeTransaction
 
-        with mock.patch.object(zeep_client.client.service, 'acknowledgeTransaction') as method:
-            method.side_effect = acknowledgeTransaction
-            result, last_sent, last_received = zeep_client.request('acknowledgeTransaction', 'token')
+        with mock.patch.object(self.zeep_client.client.service, 'acknowledgeTransaction') as method:
+            method.side_effect = acknowledge_transaction_method
+            result, last_sent, last_received = self.zeep_client.request('acknowledgeTransaction', 'token')
             method.assert_called_once_with('token')
         assert_equal_xml(expected_response, last_received)
-        assert_equal_xml(requests.request_history[0].text.encode('utf-8'), last_sent)
+        assert_equal_xml(requests.last_request.text.encode('utf-8'), last_sent)
 
 
 class ZeepWssePluginTest(unittest.TestCase):
@@ -137,9 +128,9 @@ class ZeepWssePluginTest(unittest.TestCase):
         signer_key_data = get_fixture_data('597020000547.key')
         signer_cert_data = get_fixture_data('597020000547.crt')
         tbk_cert_data = get_fixture_data('tbk.pem')
-        self.tbk_cert = load_key_from_data(tbk_cert_data, key_format=xmlsec.KeyFormat.CERT_PEM)
+        self.tbk_cert = load_key_from_data(tbk_cert_data, key_format='CERT_PEM')
         self.signer_key = load_key_from_data(signer_key_data, signer_cert_data)
-        self.signer_cert = load_key_from_data(signer_cert_data, key_format=xmlsec.KeyFormat.CERT_PEM)
+        self.signer_cert = load_key_from_data(signer_cert_data, key_format='CERT_PEM')
         self.envelope = get_xml_envelope('bare.acknowledgeTransaction.response.xml')
         self.signed_envelope = copy.deepcopy(self.envelope)
         sign_envelope(self.signed_envelope, self.signer_key)

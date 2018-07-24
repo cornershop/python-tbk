@@ -1,7 +1,17 @@
 
 import re
+import abc
 
 import xmlsec
+try:
+    # Note: we will try to use lxml as first choice
+    # because it is fast and probably installed with zeep
+    from lxml import etree as ElementTree
+except ImportError:  # pragma: no cover
+    try:
+        import xml.etree.cElementTree as ElementTree
+    except ImportError:
+        import xml.etree.ElementTree as ElementTree
 
 
 def parse_tbk_error_message(raw_message):
@@ -17,8 +27,24 @@ def parse_tbk_error_message(raw_message):
     return raw_message, -1
 
 
-def load_key_from_data(key_data, cert_data=None, password=None, key_format=xmlsec.KeyFormat.PEM):
+def get_key_format_value(key_format):
+    try:
+        return getattr(xmlsec.KeyFormat, key_format)
+    except AttributeError:
+        raise ValueError("Key format {} unsupported".format(key_format))
+
+
+def load_key_from_data(key_data, cert_data=None, password=None, key_format='PEM'):
+    key_format = get_key_format_value(key_format)
     key = xmlsec.Key.from_memory(key_data, key_format, password)
     if cert_data:
         key.load_cert_from_memory(cert_data, key_format)
     return key
+
+
+def xml_to_string(tree):
+    return ElementTree.tostring(tree)
+
+
+def create_xml_element(tag_name, nsmap=None):
+    return ElementTree.Element(tag_name, nsmap=nsmap)

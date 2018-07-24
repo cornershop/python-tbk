@@ -1,30 +1,21 @@
 
 import logging
 
-from .soap import SoapRequestor, create_soap_client
+from .soap import create_soap_requestor
 
 
 class TBKWebService(object):
 
-    def __init__(self, commerce, soap_requestor):
+    def __init__(self, commerce, soap_client_class=None):
         self.commerce = commerce
-        self.soap_requestor = soap_requestor
+        self.soap_requestor = create_soap_requestor(
+            wsdl_url=self.get_wsdl_url_for_environment(commerce.environment),
+            commerce=commerce,
+            client_class=soap_client_class)
         self.logger = logging.getLogger('tbk.services.{}'.format(self.__class__.__name__))
 
     @classmethod
-    def init_for_commerce(cls, commerce, soap_client_class=None):
-        soap_client = create_soap_client(
-            wsdl_url=cls.get_wsdl_url_for_environent(commerce.environment),
-            key_data=commerce.key_data,
-            cert_data=commerce.cert_data,
-            tbk_cert_data=commerce.tbk_cert_data,
-            client_class=soap_client_class
-        )
-        soap_requestor = SoapRequestor(soap_client)
-        return cls(commerce, soap_requestor)
-
-    @classmethod
-    def get_wsdl_url_for_environent(cls, environment):
+    def get_wsdl_url_for_environment(cls, environment):
         try:
             return getattr(cls, 'WSDL_{}'.format(environment))
         except AttributeError:

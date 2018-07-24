@@ -47,8 +47,7 @@ Installation
 
 Just run::
 
-	$ python setup.py install
-
+	$ pip install python-tbk
 
 Usage
 =====
@@ -59,9 +58,9 @@ As simple as call (snakecased) webpay api methods::
 	>>> from tbk.commerce import Commerce
 	>>> from tbk import INTEGRACION
 	>>> commerce = Commerce(commerce_code, key_data, cert_data, tbk_cert_data, INTEGRACION)
-	>>> webpay_normal = WebpayService.init_for_commerce(commerce)
+	>>> webpay_normal = WebpayService(commerce)
 	>>> transaction = webpay_normal.init_transaction(amount, buy_order, return_url, final_url)
-	>>> print(transaction.token)
+	>>> print(transaction['token'])
 	e87df74f7af4dcfdc1d17521b07413ff9a004a7b423dc47ad09f6a8166a73842
 
 
@@ -120,7 +119,7 @@ Tan simple como llamar los métodos del API de Webpay (pero snakecased)::
 	>>> from tbk.commerce import Commerce
 	>>> from tbk import INTEGRACION
 	>>> commerce = Commerce(commerce_code, key_data, cert_data, tbk_cert_data, INTEGRACION)
-	>>> webpay_normal = WebpayService.init_for_commerce(commerce)
+	>>> webpay_normal = WebpayService(commerce)
 	>>> transaction = webpay_normal.init_transaction(amount, buy_order, return_url, final_url)
 	>>> print(transaction.token)
 	e87df74f7af4dcfdc1d17521b07413ff9a004a7b423dc47ad09f6a8166a73842

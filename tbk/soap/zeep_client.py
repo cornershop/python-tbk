@@ -3,14 +3,12 @@ import zeep
 import zeep.plugins
 import zeep.helpers
 import zeep.exceptions
-import xmlsec
-import lxml.etree
 
-from . import SoapClient
+from .soap_client import SoapClient
 from .wsse import sign_envelope, verify_envelope
 from .exceptions import (InvalidSignatureResponse, SoapServerException, MethodDoesNotExist,
                          TypeDoesNotExist)
-from .utils import load_key_from_data, parse_tbk_error_message
+from .utils import load_key_from_data, parse_tbk_error_message, xml_to_string
 
 
 class ZeepSoapClient(SoapClient):
@@ -53,10 +51,10 @@ class ZeepSoapClient(SoapClient):
             raise MethodDoesNotExist(method_name)
 
     def get_last_sent_envelope(self):
-        return lxml.etree.tostring(self.history.last_sent['envelope'])
+        return xml_to_string(self.history.last_sent['envelope'])
 
     def get_last_received_envelope(self):
-        return lxml.etree.tostring(self.history.last_received['envelope'])
+        return xml_to_string(self.history.last_received['envelope'])
 
 
 class ZeepWsseSignature(object):
@@ -68,7 +66,7 @@ class ZeepWsseSignature(object):
     @classmethod
     def init_from_data(cls, key_data, cert_data, tbk_cert_data, password=None):
         key = load_key_from_data(key_data, cert_data, password)
-        tbk_cert = load_key_from_data(tbk_cert_data, key_format=xmlsec.KeyFormat.CERT_PEM)
+        tbk_cert = load_key_from_data(tbk_cert_data, key_format='CERT_PEM')
         return cls(key, tbk_cert)
 
     def apply(self, envelope, headers):

@@ -11,14 +11,6 @@ class SoapClientException(Exception):
     pass
 
 
-class EnumValueDoesNotExist(SoapClientException):
-
-    def __init__(self, enum_name, value):
-        super(EnumValueDoesNotExist, self).__init__(enum_name, value)
-        self.enum_name = enum_name
-        self.value = value
-
-
 class TypeDoesNotExist(SoapClientException):
     def __init__(self, type_name):
         super(TypeDoesNotExist, self).__init__(type_name)

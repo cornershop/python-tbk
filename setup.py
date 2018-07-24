@@ -22,16 +22,15 @@ AUTHOR = 'Cornershop'
 # What packages are required for this module to be executed?
 REQUIRED = [
     "zeep>=3.0.0",
-    "xmlsec>=0.6.1",
-    "lxml>=4.1.1"
+    "xmlsec>=0.6.1"
 ]
 
 EXAMPLES_REQUIRE = [
     "flask"
 ]
 
-SUDS_REQUIRE = [
-    "suds-jurko>=0.6"
+LXML_REQUIRE = [
+    "lxml>=4.1.1"
 ]
 
 TESTS_REQUIREMENTS = [
@@ -105,7 +104,7 @@ setup(
     install_requires=REQUIRED,
     extras_require={
         'examples': EXAMPLES_REQUIRE,
-        'suds': SUDS_REQUIRE,
+        'lxml': LXML_REQUIRE
     },
     setup_requires=TESTS_REQUIREMENTS,
     include_package_data=True,

@@ -1,12 +1,7 @@
 
 import logging
-import abc
-try:
-    AbstractBaseClass = abc.ABC
-except AttributeError:
-    AbstractBaseClass = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
 
-from .exceptions import SoapClientException
+from .exceptions import SoapServerException, SoapClientException
 
 
 class SoapRequest(object):
@@ -28,11 +23,6 @@ class SoapRequest(object):
             arguments=arguments
         )
 
-    def __eq__(self, other):
-        return self.method_name == other.method_name \
-            and self.args == other.args \
-            and self.kwargs == other.kwargs
-
 
 class SoapResponse(object):
 
@@ -42,21 +32,11 @@ class SoapResponse(object):
         self.envelope_sent = envelope_sent
         self.envelope_received = envelope_received
 
-    def __setitem__(self, key):
-        raise RuntimeError("Cannot set item to immutable dict SoapResponse")
-
     def __getitem__(self, key):
         return self.result[key]
 
     def __str__(self):
         return str(self.result)
-
-    def __eq__(self, other):
-        return self.result == other.result 
-        # \
-        #     and self.request == other.request \
-        #     and self.envelope_sent == other.envelope_sent \
-        #     and self.envelope_received == other.envelope_received
 
 
 class SoapRequestor(object):
@@ -92,8 +72,8 @@ class SoapRequestor(object):
                 method_name,
                 *args,
                 **kwargs)
-        except SoapClientException:
-            self.logger.exception("SOAP client exception on method `%s`", method_name)
+        except SoapServerException:
+            self.logger.exception("SOAP server exception on method `%s`", method_name)
             raise
         except Exception:
             self.logger.exception(
@@ -109,28 +89,3 @@ class SoapRequestor(object):
             self.logger.info("Successful request to method `%s`", method_name)
             self.logger.debug(response)
             return response
-
-
-class SoapClient(AbstractBaseClass):
-    def __init__(self, wsdl_url, key_data, cert_data, tbk_cert_data, password=None):
-        self.logger = logging.getLogger('tbk.soap.client.{}'.format(self.__class__.__name__))
-        self.logger.info("Initializing soap client for wsdl: '%s'", wsdl_url)
-
-    @abc.abstractmethod
-    def get_enum_value(self, enum_name, value):
-        pass
-
-    @abc.abstractmethod
-    def create_object(self, type_name, *args, **kwargs):
-        pass
-
-    @abc.abstractmethod
-    def request(self, method_name, *args, **kwargs):
-        pass
-
-
-def create_soap_client(wsdl_url, key_data, cert_data, tbk_cert_data, password=None, client_class=None):
-    if client_class is None:
-        from .zeep_client import ZeepSoapClient
-        client_class = ZeepSoapClient
-    return client_class(wsdl_url, key_data, cert_data, tbk_cert_data, password)

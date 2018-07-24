@@ -1,10 +1,9 @@
-
+import os
 import logging
 
 import flask
 
-import tbk.services
-import tbk.commerce
+import tbk
 
 app = flask.Flask(__name__)
 app.secret_key = 'TBKSESSION'
@@ -100,7 +99,7 @@ commerce = tbk.commerce.Commerce(
     environment=tbk.INTEGRACION)
 
 
-webpay_service = tbk.services.WebpayService.init_for_commerce(commerce)
+webpay_service = tbk.services.WebpayService(commerce)
 
 
 @app.route("/")
@@ -113,8 +112,8 @@ def init_transaction():
     transaction = webpay_service.init_transaction(
         amount=flask.request.form['amount'],
         buy_order=flask.request.form['buy_order'],
-        return_url='http://localhost:5000/return',
-        final_url='http://localhost:5000/final',
+        return_url='http://localhost:5005/return',
+        final_url='http://localhost:5005/final',
         session_id=flask.request.form['session_id']
     )
     return flask.render_template('normal/init.html', transaction=transaction)
@@ -149,4 +148,4 @@ def final():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=os.getenv('FLASK_PORT'))

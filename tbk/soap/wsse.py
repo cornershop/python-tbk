@@ -1,13 +1,13 @@
 """
-Custom implementation of wsse (without Timestamp) for Transbank Webpay Webservices.
+Custom implementation of wsse (without Timestamp) for TBK Webservices.
 
 based on py-wsse suds
 """
 from uuid import uuid4
 
 import xmlsec
-import lxml.etree
-import lxml.builder
+
+from .utils import create_xml_element
 
 
 SOAP_NS = 'http://schemas.xmlsoap.org/soap/envelope/'
@@ -19,12 +19,6 @@ WSS_BASE = 'http://docs.oasis-open.org/wss/2004/01/'
 WSSE_NS = WSS_BASE + 'oasis-200401-wss-wssecurity-secext-1.0.xsd'
 # WS-Utility
 WSU_NS = WSS_BASE + 'oasis-200401-wss-wssecurity-utility-1.0.xsd'
-
-
-def sign_envelope_data(envelope_data, key):
-    envelope = lxml.etree.fromstring(envelope_data)
-    sign_envelope(envelope, key)
-    return lxml.etree.tostring(envelope)
 
 
 def sign_envelope(envelope, key):
@@ -133,13 +127,9 @@ def sign_envelope(envelope, key):
     # KeyInfo. The recipient expects this structure, but we can't rearrange
     # like this until after signing, because otherwise xmlsec won't populate
     # the X509 data (because it doesn't understand WSSE).
-    sec_token_ref = lxml.etree.SubElement(key_info, ns(WSSE_NS, 'SecurityTokenReference'))
+    sec_token_ref = create_xml_element(ns(WSSE_NS, 'SecurityTokenReference'))
     sec_token_ref.append(x509_data)
-
-
-def verify_envelope_data(envelope_data, key):
-    envelope = lxml.etree.fromstring(envelope_data)
-    return verify_envelope(envelope, key)
+    key_info.append(sec_token_ref)
 
 
 def verify_envelope(envelope, key):
@@ -241,19 +231,19 @@ def get_signature_node(envelope):
 
 
 def get_or_create_header(envelope):
-    header = envelope.find(ns(SOAP_NS, 'Header'))
+    tag_name = ns(SOAP_NS, 'Header')
+    header = envelope.find(tag_name)
     if header is None:
-        soap_factory = lxml.builder.ElementMaker(namespace=SOAP_NS, nsmap={'wsse': SOAP_NS})
-        header = soap_factory.Header()
+        header = create_xml_element(tag_name, nsmap={'wsse': SOAP_NS})
         envelope.insert(0, header)
     return header
 
 
 def get_or_create_security_header(envelope):
+    tag_name = ns(WSSE_NS, 'Security')
     header = get_or_create_header(envelope)
-    security = header.find(ns(WSSE_NS, 'Security'))
+    security = header.find(tag_name)
     if security is None:
-        wsse_factory = lxml.builder.ElementMaker(namespace=WSSE_NS, nsmap={'wsse': WSSE_NS})
-        security = wsse_factory.Security()
+        security = create_xml_element(tag_name, nsmap={'wsse': WSSE_NS})
         header.append(security)
     return security
