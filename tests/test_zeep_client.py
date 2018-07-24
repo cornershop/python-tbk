@@ -5,7 +5,7 @@ import unittest
 import requests_mock
 import zeep.exceptions
 
-from tbk.soap import SoapClient
+from tbk.soap.soap_client import SoapClient
 from tbk.soap.exceptions import InvalidSignatureResponse, TypeDoesNotExist, SoapServerException, MethodDoesNotExist
 from tbk.soap.utils import load_key_from_data
 from tbk.soap.wsse import sign_envelope, verify_envelope

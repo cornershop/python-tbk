@@ -1,8 +1,9 @@
 
 import unittest
 
+from tbk.soap import SoapRequestor, SoapRequest, SoapResponse
 from tbk.soap.exceptions import SoapClientException, SoapServerException
-from tbk.soap import SoapRequestor, SoapRequest, SoapResponse, SoapClient
+from tbk.soap.soap_client import SoapClient
 
 from .utils import mock
 
