@@ -91,15 +91,13 @@ Specific service logger are defined by class name::
 
     tbk.services.WebpayService
 
-Soap requests logging is defined in::
-
-    tbk.soap
-
 
 Bugs?
 =====
 
 Issues are welcome at https://github.com/cornershop/python-tbk/issues
+
+
 🇪🇸
 
 Instalación
@@ -158,8 +156,4 @@ Se encuentran definidos dos niveles de logger::
 El logger específico de un servicio está definido por su nombre de clase::
 
     tbk.services.WebpayService
-
-El logger específico para soap es el siguiente::
-
-    tbk.soap
 
