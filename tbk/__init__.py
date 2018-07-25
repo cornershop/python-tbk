@@ -3,25 +3,32 @@ from .__about__ import __version__  # noqa
 
 from . import commerce
 from . import services
+from . import environments
 
 from .soap.exceptions import SoapServerException  # noqa
 
 
-__all__ = ['services', 'INTEGRACION', 'CERTIFICACION', 'PRODUCCION']
+__all__ = ['services', 'environments']
 
-INTEGRACION = 'INTEGRACION'
-CERTIFICACION = 'CERTIFICACION'
-PRODUCCION = 'PRODUCCION'
-
-
-# Shortcuts
+# services shortcuts
 Commerce = commerce.Commerce
 OneClickPaymentService = services.OneClickPaymentService
 WebpayService = services.WebpayService
 CommerceIntegrationService = services.CommerceIntegrationService
+
+# environments shortcuts
+DEVELOPMENT = environments.DEVELOPMENT
+CERTIFICATION = environments.CERTIFICATION
+PRODUCTION = environments.PRODUCTION
+
 
 # Note: support legacy names for services, will be deprecated very soon
 OneClick = OneClickPaymentService
 WebpayNormal = WebpayService
 DeferredCapture = CommerceIntegrationService
 Nullify = CommerceIntegrationService
+
+# NOTE: Legacy environment names, will be deprecated very soon
+INTEGRACION = DEVELOPMENT
+CERTIFICACION = CERTIFICATION
+PRODUCCION = PRODUCTION

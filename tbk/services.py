@@ -7,12 +7,14 @@ from .soap import create_soap_requestor
 class TBKWebService(object):
 
     def __init__(self, commerce, soap_client_class=None):
+        self.logger = logging.getLogger('tbk.services.{}'.format(self.__class__.__name__))
+        self.logger.info("Initializing service for commerce %s in %s environment.",
+                         commerce.commerce_code, commerce.environment)
         self.commerce = commerce
         self.soap_requestor = create_soap_requestor(
             wsdl_url=self.get_wsdl_url_for_environment(commerce.environment),
             commerce=commerce,
             client_class=soap_client_class)
-        self.logger = logging.getLogger('tbk.services.{}'.format(self.__class__.__name__))
 
     @classmethod
     def get_wsdl_url_for_environment(cls, environment):
@@ -24,9 +26,9 @@ class TBKWebService(object):
 
 class OneClickPaymentService(TBKWebService):
 
-    WSDL_INTEGRACION = 'https://webpay3gint.transbank.cl/webpayserver/wswebpay/OneClickPaymentService?wsdl'
-    WSDL_CERTIFICACION = 'https://webpay3gint.transbank.cl/webpayserver/wswebpay/OneClickPaymentService?wsdl'
-    WSDL_PRODUCCION = 'https://webpay3g.transbank.cl/webpayserver/wswebpay/OneClickPaymentService?wsdl'
+    WSDL_DEVELOPMENT = 'https://webpay3gint.transbank.cl/webpayserver/wswebpay/OneClickPaymentService?wsdl'
+    WSDL_CERTIFICATION = 'https://webpay3gint.transbank.cl/webpayserver/wswebpay/OneClickPaymentService?wsdl'
+    WSDL_PRODUCTION = 'https://webpay3g.transbank.cl/webpayserver/wswebpay/OneClickPaymentService?wsdl'
 
     def init_inscription(self, username, email, response_url):
         arguments = {
@@ -66,9 +68,9 @@ class OneClickPaymentService(TBKWebService):
 
 class WebpayService(TBKWebService):
 
-    WSDL_INTEGRACION = 'https://webpay3gint.transbank.cl/WSWebpayTransaction/cxf/WSWebpayService?wsdl'
+    WSDL_DEVELOPMENT = 'https://webpay3gint.transbank.cl/WSWebpayTransaction/cxf/WSWebpayService?wsdl'
     WSDL_CERTIFICATION = 'https://webpay3gint.transbank.cl/WSWebpayTransaction/cxf/WSWebpayService?wsdl'
-    WSDL_PRODUCCION = 'https://webpay3g.transbank.cl/WSWebpayTransaction/cxf/WSWebpayService?wsdl'
+    WSDL_PRODUCTION = 'https://webpay3g.transbank.cl/WSWebpayTransaction/cxf/WSWebpayService?wsdl'
 
     def init_transaction(self, amount, buy_order, return_url, final_url, session_id=None):
         transaction_type = self.soap_requestor.get_enum_value('wsTransactionType', 'TR_NORMAL_WS')
@@ -99,9 +101,9 @@ class WebpayService(TBKWebService):
 
 class CommerceIntegrationService(TBKWebService):
 
-    WSDL_INTEGRACION = 'https://webpay3gint.transbank.cl/WSWebpayTransaction/cxf/WSCommerceIntegrationService?wsdl'
-    WSDL_CERTIFICACION = 'https://webpay3gint.transbank.cl/WSWebpayTransaction/cxf/WSCommerceIntegrationService?wsdl'
-    WSDL_PRODUCCION = 'https://webpay3g.transbank.cl/WSWebpayTransaction/cxf/WSCommerceIntegrationService?wsdl'
+    WSDL_DEVELOPMENT = 'https://webpay3gint.transbank.cl/WSWebpayTransaction/cxf/WSCommerceIntegrationService?wsdl'
+    WSDL_CERTIFICATION = 'https://webpay3gint.transbank.cl/WSWebpayTransaction/cxf/WSCommerceIntegrationService?wsdl'
+    WSDL_PRODUCTION = 'https://webpay3g.transbank.cl/WSWebpayTransaction/cxf/WSCommerceIntegrationService?wsdl'
 
     def nullify(self, authorization_code, authorized_amount, buy_order, nullify_amount):
         arguments = {
@@ -127,9 +129,9 @@ class CommerceIntegrationService(TBKWebService):
 
 class CompleteWebpayService(TBKWebService):
 
-    WSDL_INTEGRACION = 'https://webpay3gint.transbank.cl/WSWebpayTransaction/cxf/WSCompleteWebpayService?wsdl'
-    WSDL_CERTIFICACION = 'https://webpay3gint.transbank.cl/WSWebpayTransaction/cxf/WSCompleteWebpayService?wsdl'
-    WSDL_PRODUCCION = 'https://webpay3g.transbank.cl/WSWebpayTransaction/cxf/WSCompleteWebpayService?wsdl'
+    WSDL_DEVELOPMENT = 'https://webpay3gint.transbank.cl/WSWebpayTransaction/cxf/WSCompleteWebpayService?wsdl'
+    WSDL_CERTIFICATION = 'https://webpay3gint.transbank.cl/WSWebpayTransaction/cxf/WSCompleteWebpayService?wsdl'
+    WSDL_PRODUCTION = 'https://webpay3g.transbank.cl/WSWebpayTransaction/cxf/WSCompleteWebpayService?wsdl'
 
     def init_complete_transaction(self, amount, buy_order, card_expiration_date, cvv, card_number, session_id=None):
         transaction_type = self.soap_requestor.get_enum_value('wsCompleteTransactionType', 'TR_COMPLETA_WS')

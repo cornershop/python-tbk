@@ -96,7 +96,7 @@ commerce = tbk.commerce.Commerce(
     key_data=KEY_DATA,
     cert_data=CERT_DATA,
     tbk_cert_data=TBK_CERT_DATA,
-    environment=tbk.INTEGRACION)
+    environment=tbk.environments.DEVELOPMENT)
 
 
 webpay_service = tbk.services.WebpayService(commerce)
