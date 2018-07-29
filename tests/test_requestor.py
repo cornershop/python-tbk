@@ -1,7 +1,8 @@
 
 import unittest
 
-from tbk.soap import SoapRequestor, SoapRequest, SoapResponse
+from tbk.commerce import Commerce
+from tbk.soap import SoapRequestor, SoapRequest, SoapResponse, create_soap_requestor
 from tbk.soap.exceptions import SoapClientException, SoapServerException
 from tbk.soap.soap_client import SoapClient
 
@@ -121,3 +122,36 @@ class SoapResponseTest(unittest.TestCase):
         result = {key: item}
         response = SoapResponse(request=request, result=result, envelope_received=None, envelope_sent=None)
         self.assertEqual(item, response[key])
+
+
+class CreateSOAPRequestorTest(unittest.TestCase):
+
+    def test_create_soap_requestor_with_custom_class(self):
+        client_class = mock.MagicMock(spec=type)
+        commerce = mock.Mock()
+        wsdl_url = mock.MagicMock(spec=str)
+        requestor = create_soap_requestor(wsdl_url, commerce, client_class=client_class)
+        client_class.assert_called_once_with(
+            wsdl_url=wsdl_url,
+            key_data=commerce.key_data,
+            cert_data=commerce.cert_data,
+            tbk_cert_data=commerce.tbk_cert_data,
+            password=commerce.key_password
+        )
+        self.assertIsInstance(requestor, SoapRequestor)
+        self.assertEqual(client_class.return_value, requestor.soap_client)
+
+    def test_create_soap_requestor(self):
+        commerce = mock.Mock()
+        wsdl_url = mock.MagicMock(spec=str)
+        with mock.patch('tbk.soap.default_client_class', spec=type) as client_class:
+            requestor = create_soap_requestor(wsdl_url, commerce)
+            client_class.assert_called_once_with(
+                wsdl_url=wsdl_url,
+                key_data=commerce.key_data,
+                cert_data=commerce.cert_data,
+                tbk_cert_data=commerce.tbk_cert_data,
+                password=commerce.key_password
+            )
+            self.assertIsInstance(requestor, SoapRequestor)
+            self.assertEqual(client_class.return_value, requestor.soap_client)
