@@ -5,7 +5,7 @@ import abc
 try:
     # noinspection PyUnresolvedReferences
     AbstractBaseClass = abc.ABC
-except AttributeError:
+except AttributeError:  # pragma: no cover
     AbstractBaseClass = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
 
 
