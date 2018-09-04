@@ -1,37 +1,21 @@
-# -*- coding: utf-8 -*-
 """
-Custom implementation of wsse (without Timestamp) for Transbank Webpay Webservices.based.
+Custom implementation of wsse (without Timestamp) for TBK Webservices.
 
 based on py-wsse suds
 """
-from __future__ import unicode_literals
-
 from uuid import uuid4
 
 import xmlsec
 
-from lxml import etree
+from .utils import create_xml_element
 
 
 SOAP_NS = 'http://schemas.xmlsoap.org/soap/envelope/'
-# xmldsig
 DS_NS = 'http://www.w3.org/2000/09/xmldsig#'
 
 WSS_BASE = 'http://docs.oasis-open.org/wss/2004/01/'
-# WS-Security
 WSSE_NS = WSS_BASE + 'oasis-200401-wss-wssecurity-secext-1.0.xsd'
-# WS-Utility
 WSU_NS = WSS_BASE + 'oasis-200401-wss-wssecurity-utility-1.0.xsd'
-
-
-class SignatureVerificationFailed(Exception):
-    pass
-
-
-def sign_envelope_data(envelope_data, key):
-    envelope = etree.fromstring(envelope_data)
-    sign_envelope(envelope, key)
-    return etree.tostring(envelope)
 
 
 def sign_envelope(envelope, key):
@@ -127,8 +111,7 @@ def sign_envelope(envelope, key):
     xmlsec.template.x509_data_add_certificate(x509_data)
 
     # Insert the Signature node in the wsse:Security header.
-    header = envelope.find(ns(SOAP_NS, 'Header'))
-    security = header.find(ns(WSSE_NS, 'Security'))
+    security = get_or_create_security_header(envelope)
     security.insert(0, signature)
 
     # Perform the actual signing.
@@ -141,13 +124,9 @@ def sign_envelope(envelope, key):
     # KeyInfo. The recipient expects this structure, but we can't rearrange
     # like this until after signing, because otherwise xmlsec won't populate
     # the X509 data (because it doesn't understand WSSE).
-    sec_token_ref = etree.SubElement(key_info, ns(WSSE_NS, 'SecurityTokenReference'))
+    sec_token_ref = create_xml_element(ns(WSSE_NS, 'SecurityTokenReference'))
     sec_token_ref.append(x509_data)
-
-
-def verify_envelope_data(envelope_data, key):
-    envelope = etree.fromstring(envelope_data)
-    verify_envelope(envelope, key)
+    key_info.append(sec_token_ref)
 
 
 def verify_envelope(envelope, key):
@@ -159,15 +138,25 @@ def verify_envelope(envelope, key):
     Raise SignatureValidationFailed on failure, silent on success.
 
     """
-    header = envelope.find(ns(SOAP_NS, 'Header'))
-    security = header.find(ns(WSSE_NS, 'Security'))
-    signature = security.find(ns(DS_NS, 'Signature'))
 
+    signature = get_signature_node(envelope)
+    if signature is not None:
+        ctx = get_signature_context(signature, envelope)
+        ctx.key = key
+        try:
+            ctx.verify(signature)
+            return True
+        except xmlsec.Error:
+            # Sadly xmlsec gives us no details about the reason for the failure, so
+            # we have nothing to pass on except that verification failed.
+            return False
+    return False
+
+
+def get_signature_context(signature, envelope):
     ctx = xmlsec.SignatureContext()
-
     # Find each signed element and register its ID with the signing context.
-    refs = signature.xpath(
-        'ds:SignedInfo/ds:Reference', namespaces={'ds': DS_NS})
+    refs = signature.xpath('ds:SignedInfo/ds:Reference', namespaces={'ds': DS_NS})
     for ref in refs:
         # Get the reference URI and cut off the initial '#'
         referenced_id = ref.get('URI')[1:]
@@ -176,15 +165,7 @@ def verify_envelope(envelope, key):
             namespaces={'wsu': WSU_NS},
         )[0]
         ctx.register_id(referenced, 'Id', WSU_NS)
-
-    ctx.key = key
-
-    try:
-        ctx.verify(signature)
-    except xmlsec.Error:
-        # Sadly xmlsec gives us no details about the reason for the failure, so
-        # we have nothing to pass on except that verification failed.
-        raise SignatureVerificationFailed()
+    return ctx
 
 
 def sign_node(ctx, signature, target):
@@ -214,8 +195,8 @@ def sign_node(ctx, signature, target):
     ctx.register_id(target, 'Id', WSU_NS)
 
 
-def ns(namespace, tagname):
-    return '{%s}%s' % (namespace, tagname)
+def ns(namespace, tag_name):
+    return '{%s}%s' % (namespace, tag_name)
 
 
 def get_unique_id():
@@ -234,3 +215,32 @@ def ensure_id(node):
         id_val = get_unique_id()
         node.set(id_attr, id_val)
     return id_val
+
+
+def get_signature_node(envelope):
+    try:
+        header = envelope.find(ns(SOAP_NS, 'Header'))
+        security = header.find(ns(WSSE_NS, 'Security'))
+        return security.find(ns(DS_NS, 'Signature'))
+    except AttributeError:
+        pass
+    return None
+
+
+def get_or_create_header(envelope):
+    tag_name = ns(SOAP_NS, 'Header')
+    header = envelope.find(tag_name)
+    if header is None:
+        header = create_xml_element(tag_name, nsmap={'wsse': SOAP_NS})
+        envelope.insert(0, header)
+    return header
+
+
+def get_or_create_security_header(envelope):
+    tag_name = ns(WSSE_NS, 'Security')
+    header = get_or_create_header(envelope)
+    security = header.find(tag_name)
+    if security is None:
+        security = create_xml_element(tag_name, nsmap={'wsse': WSSE_NS})
+        header.append(security)
+    return security

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Final{% endblock title %}
+
+{% block header %}
+<h1>Normal</h1>
+<h2>Final</h2>
+{% endblock header %}
+
+{% block content %}
+<dl>
+  {% for key,value in transaction.result.items() %}
+  <dt>{{key}}</dt>
+  <dd>{{value}}</dd>
+  {% endfor %}
+</dl>
+
+<form action="/oneclick/authorize" method="POST">
+    <label for="buy_order">Buy Order
+      <input type="text" name="buy_order" id="buy_order" value="{{buy_order}}">
+    </label>
+    <label for="amount">Amount
+      <input type="number" name="amount" id="amount">
+    </label>
+    <label for="username">Username
+        <input type="text" name="username" id="username">
+    </label>
+    <label for="tbk_user">TBK User
+        <input type="text" name="tbk_user" id="tbk_user" value="{{transaction.tbkUser}}">
+    </label>
+    <button type="submit">Create authorization</button>
+</form>
+{% endblock %}

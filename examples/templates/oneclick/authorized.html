@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Final{% endblock title %}
+
+{% block header %}
+<h1>Normal</h1>
+<h2>Final</h2>
+{% endblock header %}
+
+{% block content %}
+<dl>
+  {% for key,value in transaction.result.items() %}
+  <dt>{{key}}</dt>
+  <dd>{{value}}</dd>
+  {% endfor %}
+</dl>
+
+<form action="/oneclick/refund" method="POST">
+    <label for="buy_order">Buy Order
+      <input type="text" name="buy_order" id="buy_order" value="{{buy_order}}">
+    </label>
+    <label for="authorized_amount">Authorized amount
+      <input type="number" name="authorized_amount" id="authorized_amount" value="{{amount}}">
+    </label>
+    <label for="authorization_code">Auth code
+        <input type="text" name="authorization_code" id="authorization_code" value="{{transaction.authorizationCode}}">
+    </label>
+    <label for="nullify_amount">Amount
+        <input type="text" name="nullify_amount" id="nullify_amount" value="{{amount}}">
+    </label>
+    <button type="submit">Create refund</button>
+</form>
+<form action="/oneclick/release" method="POST">
+    <label for="buy_order">Buy Order
+      <input type="text" name="buy_order" id="buy_order" value="{{buy_order}}">
+    </label>
+    <button type="submit">Release transaction</button>
+</form>
+{% endblock %}

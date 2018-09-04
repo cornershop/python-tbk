@@ -5,27 +5,28 @@ initTransaction
 {% endblock title %}
 
 {% block header %}
-<h1>Transacción Normal<h1>
-<h2>initTransaction</h2>
+<h1>OneClick<h1>
+<h2>initInscription</h2>
 {% endblock header %}
 
 {% block content %}
-<form method="POST" action="{{ transaction.url }}" class="pure-form pure-form-stacked">
+  {{transaction}}
+<form method="POST" action="{{ inscription.urlWebpay }}" class="pure-form pure-form-stacked">
   <fieldset>
     <label for="show">
       Token:
-      <code>{{ transaction.token }}</code>
+      <code>{{ inscription.token }}</code>
     </label>
-    <input type="hidden" name="token_ws" value="{{ transaction.token }}">
+    <input type="hidden" name="TBK_TOKEN" value="{{ inscription.token }}">
     <button type="submit">Send to TBK</button>
   </fieldset>
 </form>
 <figure>
   <caption>Received XML</caption>
-  <code>{{ transaction.envelope_received }}</code>	
+  <code>{{ inscription.envelope_received }}</code>
 </figure>
 <figure>
   <caption>Sent XML</caption>
-  <code>{{ transaction.envelope_sent }}</code>	
+  <code>{{ inscription.envelope_sent }}</code>
 </figure>
 {% endblock content %}

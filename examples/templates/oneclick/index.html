@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}
+Registration
+{% endblock title %}
+
+{% block header %}
+<h1>Oneclick</h1>
+<h2>registration</h2>
+{% endblock header %}
+
+{% block content %}
+<form method="POST" action="/oneclick/init" class="pure-form pure-form-stacked">
+  <fieldset>
+    <legend>Begin Registration</legend>
+
+    <label for="email">E-Mail
+      <input type="text" name="email" id="email">
+    </label>
+
+    <label for="username">Username
+      <input type="text" name="username" id="username">
+    </label>
+
+    <button type="submit" class="pure-button">Init Transaction</button>
+  </fieldset>
+</form>
+{% endblock content %}

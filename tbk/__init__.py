@@ -1,12 +1,34 @@
 
 from .__about__ import __version__  # noqa
 
-from .commerce import Commerce  # noqa
-from .oneclick import OneClick  # noqa
-from .normal import WebpayNormal  # noqa
-from .nullify import Nullify  # noqa
-from .capture import DeferredCapture  # noqa
+from . import commerce
+from . import services
+from . import environments
 
-INTEGRACION = 'INTEGRACION'
-CERTIFICACION = 'CERTIFICACION'
-PRODUCCION = 'PRODUCCION'
+from .soap.exceptions import SoapServerException  # noqa
+
+
+__all__ = ['services', 'environments']
+
+# services shortcuts
+Commerce = commerce.Commerce
+OneClickPaymentService = services.OneClickPaymentService
+WebpayService = services.WebpayService
+CommerceIntegrationService = services.CommerceIntegrationService
+
+# environments shortcuts
+DEVELOPMENT = environments.DEVELOPMENT
+CERTIFICATION = environments.CERTIFICATION
+PRODUCTION = environments.PRODUCTION
+
+
+# Note: support legacy names for services, will be deprecated very soon
+OneClick = OneClickPaymentService
+WebpayNormal = WebpayService
+DeferredCapture = CommerceIntegrationService
+Nullify = CommerceIntegrationService
+
+# NOTE: Legacy environment names, will be deprecated very soon
+INTEGRACION = DEVELOPMENT
+CERTIFICACION = CERTIFICATION
+PRODUCCION = PRODUCTION

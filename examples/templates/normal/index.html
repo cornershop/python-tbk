@@ -1,36 +1,31 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Webpay Normal</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-<h1>Webpay Normal - Init Transaction</h1>
+{% block title %}
+Checkout
+{% endblock title %}
 
-<form method="POST" action="/init">
+{% block header %}
+<h1>Webpay Normal</h1>
+<h2>checkout</h2>
+{% endblock header %}
+
+{% block content %}
+<form method="POST" action="/normal/init" class="pure-form pure-form-stacked">
   <fieldset>
     <legend>New Transaction Data</legend>
-    
-    <div>
-      <label for="amount">Amount
-        <input type="text" name="amount" id="amount">
-      </label>
-    </div>
 
-    <div>
-      <label for="buy_order">Buy Order (?)
-        <input type="text" name="buy_order" id="buy_order">
-      </label>
-    </div>
+    <label for="amount">Amount
+      <input type="text" name="amount" id="amount">
+    </label>
 
-    <div>
-      <label for="amount">Session ID
-        <input type="text" name="session_id" id="session_id">
-      </label>
-    </div>
+    <label for="buy_order">Buy Order
+      <input type="text" name="buy_order" id="buy_order">
+    </label>
 
+    <label for="session_id">Session ID
+      <input type="text" name="session_id" id="session_id">
+    </label>
+    <button type="submit" class="pure-button">Init Transaction</button>
   </fieldset>
-  <button type="submit">Init Transaction</button>
 </form>
-</body>
-</html>
+{% endblock content %}

@@ -14,14 +14,30 @@ from setuptools import find_packages, setup, Command
 
 # Package meta-data.
 NAME = 'tbk'
-DESCRIPTION = 'Unofficial Webpay Web Services Python SDK.'
+DESCRIPTION = 'Unofficial TBK Web Services Python SDK.'
 URL = 'https://github.com/cornershop/python-tbk'
 EMAIL = 'tech@cornershopapp.com'
 AUTHOR = 'Cornershop'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    "xmlsec", "suds-jurko"
+    "zeep>=3.0.0",
+    "xmlsec>=0.6.1"
+]
+
+EXAMPLES_REQUIRE = [
+    "flask"
+]
+
+LXML_REQUIRE = [
+    "lxml>=4.1.1"
+]
+
+TESTS_REQUIREMENTS = [
+    "nose>=1.0",
+    "coverage",
+    "mock",
+    "requests_mock"
 ]
 
 # The rest you shouldn't have to touch too much :)
@@ -86,6 +102,11 @@ setup(
     url=URL,
     packages=find_packages(exclude=('tests',)),
     install_requires=REQUIRED,
+    extras_require={
+        'examples': EXAMPLES_REQUIRE,
+        'lxml': LXML_REQUIRE
+    },
+    setup_requires=TESTS_REQUIREMENTS,
     include_package_data=True,
     license='MIT',
     classifiers=[
@@ -101,7 +122,6 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: Implementation :: CPython',
-        'Programming Language :: Python :: Implementation :: PyPy'
     ],
     # $ setup.py publish support.
     cmdclass={

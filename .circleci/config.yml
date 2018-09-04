@@ -1,0 +1,28 @@
+version: 2
+
+jobs:
+  tests-36:
+    docker:
+      - image: circleci/python:3.6
+    steps:
+      - checkout
+      - run: sudo apt-get update
+      - run: sudo apt-get install libxmlsec1-dev
+      - run: python setup.py nosetests
+
+  tests-27:
+    docker:
+      - image: circleci/python:2.7
+    steps:
+      - checkout
+      - run: sudo apt-get update
+      - run: sudo apt-get install libxmlsec1-dev
+      - run: python setup.py nosetests
+
+workflows:
+  version: 2
+
+  tests:
+    jobs:
+      - tests-27
+      - tests-36
