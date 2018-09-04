@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}
+initTransaction
+{% endblock title %}
+
+{% block header %}
+<h1>OneClick<h1>
+<h2>initInscription</h2>
+{% endblock header %}
+
+{% block content %}
+  {{transaction}}
+<form method="POST" action="{{ inscription.urlWebpay }}" class="pure-form pure-form-stacked">
+  <fieldset>
+    <label for="show">
+      Token:
+      <code>{{ inscription.token }}</code>
+    </label>
+    <input type="hidden" name="TBK_TOKEN" value="{{ inscription.token }}">
+    <button type="submit">Send to TBK</button>
+  </fieldset>
+</form>
+<figure>
+  <caption>Received XML</caption>
+  <code>{{ inscription.envelope_received }}</code>
+</figure>
+<figure>
+  <caption>Sent XML</caption>
+  <code>{{ inscription.envelope_sent }}</code>
+</figure>
+{% endblock content %}

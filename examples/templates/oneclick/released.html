@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Nullify{% endblock title %}
+
+{% block header %}
+<h1>Oneclick</h1>
+<h2>released</h2>
+{% endblock header %}
+
+{% block content %}
+<dl>
+  {% for key,value in release.result.items() %}
+  <dt>{{key}}</dt>
+  <dd>{{value}}</dd>
+  {% endfor %}
+</dl>
+
+{% endblock %}
