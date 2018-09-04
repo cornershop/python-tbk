@@ -30,16 +30,10 @@
     </label>
     <button type="submit">Create refund</button>
 </form>
-<form action="/oneclick/release">
+<form action="/oneclick/release" method="POST">
     <label for="buy_order">Buy Order
       <input type="text" name="buy_order" id="buy_order" value="{{buy_order}}">
     </label>
     <button type="submit">Release transaction</button>
 </form>
 {% endblock %}
-
-
-buy_order
-authorized_amount
-authorization_code
-nullify_amount
