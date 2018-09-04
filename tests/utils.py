@@ -6,7 +6,7 @@ try:
 except ImportError:
     import mock  # noqa
 
-import lxml.etree
+from lxml import etree
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 FIXTURES_DIR = os.path.join(HERE, 'fixtures')
@@ -26,10 +26,10 @@ def get_fixture_data(filename):
 
 
 def assert_equal_xml(first, second):
-    first = lxml.etree.tostring(lxml.etree.fromstring(first))
-    second = lxml.etree.tostring(lxml.etree.fromstring(second))
+    first = etree.tostring(etree.fromstring(first))
+    second = etree.tostring(etree.fromstring(second))
     assert first == second
 
 
 def get_xml_envelope(filename):
-    return lxml.etree.fromstring(get_fixture_data(filename).encode('utf-8'))
+    return etree.fromstring(get_fixture_data(filename).encode('utf-8'))

@@ -36,6 +36,7 @@ class ZeepSoapClient(SoapClient):
             result = method(*args, **kwargs)
         except zeep.exceptions.Fault as fault:
             self.logger.exception("Fault")
+            print(fault.message)
             error, code = parse_tbk_error_message(fault.message)
             raise SoapServerException(error, code)
         else:
@@ -71,9 +72,11 @@ class ZeepWsseSignature(object):
 
     def apply(self, envelope, headers):
         sign_envelope(envelope, self.key)
+        print(xml_to_string(envelope))
         return envelope, headers
 
     def verify(self, envelope):
+        print(xml_to_string(envelope))
         if not verify_envelope(envelope, self.tbk_cert):
             raise InvalidSignatureResponse()
         return envelope
