@@ -6,7 +6,7 @@ name = "pypi"
 [dev-packages]
 ipython = "<=5.7.0"
 nose = "*"
-flask = "*"
+flask = ">0.12.2"
 docutils = "*"
 requests-mock = "*"
 mock = {markers="python_version < '3.5'"}
