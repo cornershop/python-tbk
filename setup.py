@@ -13,7 +13,8 @@ from shutil import rmtree
 from setuptools import find_packages, setup, Command
 
 # Package meta-data.
-NAME = 'tbk'
+NAME = 'python-tbk'
+MODULE_NAME = 'tbk'
 DESCRIPTION = 'Unofficial TBK Web Services Python SDK.'
 URL = 'https://github.com/cornershop/python-tbk'
 EMAIL = 'tech@cornershopapp.com'
@@ -54,7 +55,7 @@ with io.open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 # Load the package's __version__.py module as a dictionary.
 about = {}
-with open(os.path.join(here, NAME, '__about__.py')) as f:
+with open(os.path.join(here, MODULE_NAME, '__about__.py')) as f:
     exec(f.read(), about)
 
 
