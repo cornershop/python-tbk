@@ -2,12 +2,17 @@
 Unofficial TBK Web Services Python SDK
 ======================================
 
-🇬🇧
+.. image:: https://circleci.com/gh/cornershop/python-tbk/tree/master.svg?style=svg
+    :target: https://circleci.com/gh/cornershop/python-tbk/tree/master
 
-Testing cards
-=============
+.. image:: https://badge.fury.io/py/python-tbk.svg
+    :target: https://pypi.org/project/python-tbk/
 
-Credit
+
+Testing cards / Tarjetas de prueba
+==================================
+
+Credit / Crédito
 
 +----------------+------------------+------------------+
 | Marca          | VISA             | MASTERCARD       |
@@ -21,7 +26,7 @@ Credit
 | Resultado      | APROBADO         | RECHAZADO        |
 +----------------+------------------+------------------+
 
-Debit
+Debit / Débito
 
 +----------+------------------+------------------+
 |          | APRUEBA          | RECHAZA          |
@@ -33,6 +38,9 @@ Debit
 | PASSWORD | 123              | 123              |
 +----------+------------------+------------------+
 
+---
+
+🇬🇧
 
 Installation
 ============
