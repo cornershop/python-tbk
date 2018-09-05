@@ -124,13 +124,11 @@ def oneclick_index():
 
 @app.route("/oneclick/init", methods=['POST'])
 def oneclick_init_inscription():
-    print(flask.request.form)
     inscription = oneclick_service.init_inscription(
         username=flask.request.form['username'],
         email=flask.request.form['email'],
         response_url=BASE_URL + '/oneclick/return'
     )
-    print(inscription.result)
     return flask.render_template('oneclick/init.html', inscription=inscription)
 
 
