@@ -1,0 +1,32 @@
+{% extends "base_tbk.html" %}
+
+{% block title %}
+Checkout
+{% endblock title %}
+
+{% block header %}
+<h1>Webpay Normal</h1>
+<h2>checkout</h2>
+{% endblock header %}
+
+{% block content %}
+{% comment %} /tbk/normal/init {% endcomment %}
+<form method="POST" action="/tbk/normal/init" enctype="multipart/form-data" class="pure-form pure-form-stacked">{% csrf_token %}
+  <fieldset>
+    <legend>New Transaction Data</legend>
+
+    <label for="amount">Amount
+      <input type="text" name="amount" id="amount">
+    </label>
+
+    <label for="buy_order">Buy Order
+      <input type="text" name="buy_order" id="buy_order">
+    </label>
+
+    <label for="session_id">Session ID
+      <input type="text" name="session_id" id="session_id">
+    </label>
+    <button type="submit" class="btn" id="enviar" value="Enviar">Init Transaction</button>
+  </fieldset>
+</form>
+{% endblock content %}

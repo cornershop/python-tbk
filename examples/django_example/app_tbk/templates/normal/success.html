@@ -1,0 +1,28 @@
+{% extends "base_tbk.html" %}
+
+{% block title %}Success{% endblock %}
+
+{% block header %}
+<h1>Normal</h1>
+<h2>Return Success</h2>
+{% endblock header %}
+
+{% block content %}
+<dl>
+  {% for key,value in transaction_detail.items %}
+  <dt>{{key}}</dt>
+  <dd>{{value}}</dd>
+  {% endfor %}
+</dl>
+
+<form method="POST" action="{{transaction.urlRedirection}}" class="pure-form pure-form-stacked">
+  <fieldset>
+    <label for="show">
+      Token:
+      <code>{{ token }}</code>
+    </label>
+    <input type="hidden" name="token_ws" value="{{ token }}">
+    <button type="submit">Send to TBK</button>
+  </fieldset>
+</form>
+{% endblock %}

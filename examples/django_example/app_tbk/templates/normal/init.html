@@ -1,0 +1,31 @@
+{% extends "base_tbk.html" %}
+
+{% block title %}
+initTransaction
+{% endblock title %}
+
+{% block header %}
+<h1>Transacción Normal<h1>
+<h2>initTransaction</h2>
+{% endblock header %}
+
+{% block content %}
+<form method="POST" action="{{ transaction.url }}" class="pure-form pure-form-stacked">{% csrf_token %}
+  <fieldset>
+    <label for="show">
+      Token:
+      <code>{{ transaction.token }}</code>
+    </label>
+    <input type="hidden" name="token_ws" value="{{ transaction.token }}">
+    <button type="submit" id="enviar">Send to TBK</button>
+  </fieldset>
+</form>
+<figure>
+  <caption>Received XML</caption>
+  <code>{{ transaction.envelope_received }}</code>	
+</figure>
+<figure>
+  <caption>Sent XML</caption>
+  <code>{{ transaction.envelope_sent }}</code>	
+</figure>
+{% endblock content %}
