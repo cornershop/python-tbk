@@ -6,14 +6,22 @@
 ## Requisitos Minimos
 
     - Python 3.6 o Superior.
+    - sudo apt-get install python3-pip
+    - sudo pip3 install virtualenv
 
-# Examples instructions
+# Instrucciones de Ejemplo
 
-Correr en el puerto 8080
+    - Create virtual enviroment
+        - virtualenv -p python3 name
+        - cd name
+        - source bin/activate
+    - $ cp ../django_example/ . 
+    - $ cd django_example/
+    - $ pip install -r requirements.txt
+    - $ python manage.py migrate
+    - $ python manage.py runserver 0:8080
+    - http://localhost:8080/tbk/
 
-```
-$ python manage.py 0:8080
-```
 
 
 ## Integration commerces
