@@ -1,15 +1,15 @@
-# Ejemplo de Integración con Django
+# Example Django
 
     - Transacción Normal Funcionando
     - OneClick No implementado
 
-## Requisitos Minimos
+## Requirements
 
     - Python 3.6 o Superior.
     - sudo apt-get install python3-pip
     - sudo pip3 install virtualenv
 
-# Instrucciones de Ejemplo
+# Instructions
 
     - Create virtual enviroment
         - virtualenv -p python3 name
