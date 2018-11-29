@@ -1,4 +1,4 @@
-# Example Django
+# Example Django 2.1
 
     - Transacción Normal Funcionando
     - OneClick No implementado
@@ -15,7 +15,7 @@
         - virtualenv -p python3 name
         - cd name
         - source bin/activate
-    - $ cp ../django_example/ . 
+    - Copy folder django_example in name
     - $ cd django_example/
     - $ pip install -r requirements.txt
     - $ python manage.py migrate
@@ -41,3 +41,4 @@
 +---------------+---------------------------+
 | 597020000547  | oneclick                  |
 +---------------+---------------------------+
+
