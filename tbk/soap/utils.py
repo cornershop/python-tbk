@@ -1,4 +1,3 @@
-
 import re
 
 import xmlsec
@@ -6,10 +5,10 @@ from lxml import etree
 
 
 def parse_tbk_error_message(raw_message):
-    message_match = re.search(r'<!--(.+?)-->', raw_message)
+    message_match = re.search(r"<!--(.+?)-->", raw_message)
     if message_match:
         message = message_match.group(1).strip()
-        match = re.search(r'(.+?)\((\d+?)\)', message)
+        match = re.search(r"(.+?)\((\d+?)\)", message)
         if match:
             error = match.group(1)
             code = int(match.group(2))
@@ -25,7 +24,7 @@ def get_key_format_value(key_format):
         raise ValueError("Key format {} unsupported".format(key_format))
 
 
-def load_key_from_data(key_data, cert_data=None, password=None, key_format='PEM'):
+def load_key_from_data(key_data, cert_data=None, password=None, key_format="PEM"):
     key_format = get_key_format_value(key_format)
     key = xmlsec.Key.from_memory(key_data, key_format, password)
     if cert_data:
@@ -34,7 +33,7 @@ def load_key_from_data(key_data, cert_data=None, password=None, key_format='PEM'
 
 
 def xml_to_string(tree):
-    return etree.tostring(tree).decode('utf-8')
+    return etree.tostring(tree).decode("utf-8")
 
 
 def create_xml_element(tag_name, nsmap=None):

@@ -1,5 +1,3 @@
-
-
 from .requestor import SoapRequestor, SoapResponse, SoapRequest  # noqa
 from .zeep_client import ZeepSoapClient
 
@@ -13,6 +11,6 @@ def create_soap_requestor(wsdl_url, commerce, client_class=None):
         key_data=commerce.key_data,
         cert_data=commerce.cert_data,
         tbk_cert_data=commerce.tbk_cert_data,
-        password=commerce.key_password
+        password=commerce.key_password,
     )
     return SoapRequestor(soap_client)

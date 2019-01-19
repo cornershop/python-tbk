@@ -1,4 +1,3 @@
-
 from .__about__ import __version__  # noqa
 
 from . import commerce
@@ -8,7 +7,7 @@ from . import environments
 from .soap.exceptions import SoapServerException  # noqa
 
 
-__all__ = ['services', 'environments']
+__all__ = ["services", "environments"]
 
 # services shortcuts
 Commerce = commerce.Commerce
