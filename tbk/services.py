@@ -6,14 +6,15 @@ from .soap import create_soap_requestor
 
 class TBKWebService(object):
 
-    def __init__(self, commerce, soap_requestor=None):
+    def __init__(self, commerce, soap_requestor=None, **client_kwargs):
         self.logger = logging.getLogger('tbk.services.{}'.format(self.__class__.__name__))
         self.logger.info("Initializing service for commerce %s in %s environment.",
                          commerce.commerce_code, commerce.environment)
         self.commerce = commerce
         self.soap_requestor = soap_requestor or create_soap_requestor(
             wsdl_url=self.get_wsdl_url_for_environment(commerce.environment),
-            commerce=commerce)
+            commerce=commerce,
+            **client_kwargs)
 
     @classmethod
     def get_wsdl_url_for_environment(cls, environment):

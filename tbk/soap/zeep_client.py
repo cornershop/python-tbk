@@ -1,27 +1,46 @@
-
 import zeep
 import zeep.plugins
 import zeep.helpers
 import zeep.exceptions
+import zeep.transports
 
 from .soap_client import SoapClient
 from .wsse import sign_envelope, verify_envelope
-from .exceptions import (InvalidSignatureResponse, SoapServerException, MethodDoesNotExist,
-                         TypeDoesNotExist)
+from .exceptions import (
+    InvalidSignatureResponse,
+    SoapServerException,
+    MethodDoesNotExist,
+    TypeDoesNotExist,
+)
 from .utils import load_key_from_data, parse_tbk_error_message, xml_to_string
 
 
 class ZeepSoapClient(SoapClient):
-
-    def __init__(self, wsdl_url, key_data, cert_data, tbk_cert_data, password=None):
-        super(ZeepSoapClient, self).__init__(wsdl_url, key_data, cert_data, tbk_cert_data)
-        wsse = ZeepWsseSignature.init_from_data(key_data, cert_data, tbk_cert_data, password=password)
+    def __init__(
+            self,
+            wsdl_url,
+            key_data,
+            cert_data,
+            tbk_cert_data,
+            password=None,
+            transport_timeout=300
+    ):
+        super(ZeepSoapClient, self).__init__(
+            wsdl_url, key_data, cert_data, tbk_cert_data
+        )
+        self.wsse = ZeepWsseSignature.init_from_data(
+            key_data, cert_data, tbk_cert_data, password=password
+        )
+        self.transport_timeout = transport_timeout
+        self.transport = zeep.transports.Transport(timeout=self.transport_timeout)
         self.history = zeep.plugins.HistoryPlugin()
-        self.client = zeep.Client(wsdl_url, wsse=wsse, plugins=[self.history])
+        self.client = zeep.Client(
+            wsdl_url, wsse=self.wsse, transport=self.transport, plugins=[self.history]
+        )
 
     def create_object(self, type_name, *args, **kwargs):
         try:
-            object_type = self.client.get_type('ns0:{}'.format(type_name))
+            object_type = self.client.get_type("ns0:{}".format(type_name))
         except zeep.exceptions.LookupError:
             raise TypeDoesNotExist(type_name)
         else:
@@ -32,8 +51,10 @@ class ZeepSoapClient(SoapClient):
 
     def request(self, method_name, *args, **kwargs):
         try:
-            method = self.get_method(method_name)
-            result = method(*args, **kwargs)
+            timeout = kwargs.pop("timeout", self.transport_timeout)
+            with self.transport.settings(timeout=timeout):
+                method = self.get_method(method_name)
+                result = method(*args, **kwargs)
         except zeep.exceptions.Fault as fault:
             self.logger.exception("Fault")
             error, code = parse_tbk_error_message(fault.message)
@@ -51,14 +72,13 @@ class ZeepSoapClient(SoapClient):
             raise MethodDoesNotExist(method_name)
 
     def get_last_sent_envelope(self):
-        return xml_to_string(self.history.last_sent['envelope'])
+        return xml_to_string(self.history.last_sent["envelope"])
 
     def get_last_received_envelope(self):
-        return xml_to_string(self.history.last_received['envelope'])
+        return xml_to_string(self.history.last_received["envelope"])
 
 
 class ZeepWsseSignature(object):
-
     def __init__(self, key, tbk_cert):
         self.key = key
         self.tbk_cert = tbk_cert
@@ -66,7 +86,7 @@ class ZeepWsseSignature(object):
     @classmethod
     def init_from_data(cls, key_data, cert_data, tbk_cert_data, password=None):
         key = load_key_from_data(key_data, cert_data, password)
-        tbk_cert = load_key_from_data(tbk_cert_data, key_format='CERT_PEM')
+        tbk_cert = load_key_from_data(tbk_cert_data, key_format="CERT_PEM")
         return cls(key, tbk_cert)
 
     def apply(self, envelope, headers):
@@ -75,5 +95,5 @@ class ZeepWsseSignature(object):
 
     def verify(self, envelope):
         if not verify_envelope(envelope, self.tbk_cert):
-            raise InvalidSignatureResponse()
+            raise InvalidSignatureResponse(envelope)
         return envelope

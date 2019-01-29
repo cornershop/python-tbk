@@ -24,4 +24,6 @@ class MethodDoesNotExist(SoapClientException):
 
 
 class InvalidSignatureResponse(SoapClientException):
-    pass
+    def __init__(self, envelope):
+        super(InvalidSignatureResponse, self).__init__(envelope)
+        self.envelope = envelope
