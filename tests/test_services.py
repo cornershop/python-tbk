@@ -93,7 +93,7 @@ class OneClickPaymentServiceTest(ServiceTestCase):
 
         self.assert_result_and_request_with_input(
             result=result,
-            method_name='oneClickRemoveUser',
+            method_name='removeUser',
             input_name='oneClickRemoveUserInput',
             tbkUser=tbk_user,
             username=username
@@ -102,5 +102,3 @@ class OneClickPaymentServiceTest(ServiceTestCase):
 class WebpayServiceTest(ServiceTestCase):
 
     service_class = WebpayService
-
-    
