@@ -1,5 +1,3 @@
-
-
 from .requestor import SoapRequestor, SoapResponse, SoapRequest  # noqa
 from .zeep_client import ZeepSoapClient
 

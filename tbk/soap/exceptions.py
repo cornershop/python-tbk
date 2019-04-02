@@ -1,5 +1,3 @@
-
-
 class SoapServerException(Exception):
     def __init__(self, error, code):
         super(SoapServerException, self).__init__(error, code)

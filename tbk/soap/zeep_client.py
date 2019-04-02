@@ -17,13 +17,13 @@ from .utils import load_key_from_data, parse_tbk_error_message, xml_to_string
 
 class ZeepSoapClient(SoapClient):
     def __init__(
-            self,
-            wsdl_url,
-            key_data,
-            cert_data,
-            tbk_cert_data,
-            password=None,
-            transport_timeout=300
+        self,
+        wsdl_url,
+        key_data,
+        cert_data,
+        tbk_cert_data,
+        password=None,
+        transport_timeout=300,
     ):
         super(ZeepSoapClient, self).__init__(
             wsdl_url, key_data, cert_data, tbk_cert_data

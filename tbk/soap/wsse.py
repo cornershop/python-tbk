@@ -10,12 +10,12 @@ import xmlsec
 from .utils import create_xml_element
 
 
-SOAP_NS = 'http://schemas.xmlsoap.org/soap/envelope/'
-DS_NS = 'http://www.w3.org/2000/09/xmldsig#'
+SOAP_NS = "http://schemas.xmlsoap.org/soap/envelope/"
+DS_NS = "http://www.w3.org/2000/09/xmldsig#"
 
-WSS_BASE = 'http://docs.oasis-open.org/wss/2004/01/'
-WSSE_NS = WSS_BASE + 'oasis-200401-wss-wssecurity-secext-1.0.xsd'
-WSU_NS = WSS_BASE + 'oasis-200401-wss-wssecurity-utility-1.0.xsd'
+WSS_BASE = "http://docs.oasis-open.org/wss/2004/01/"
+WSSE_NS = WSS_BASE + "oasis-200401-wss-wssecurity-secext-1.0.xsd"
+WSU_NS = WSS_BASE + "oasis-200401-wss-wssecurity-utility-1.0.xsd"
 
 
 def sign_envelope(envelope, key):
@@ -98,9 +98,7 @@ def sign_envelope(envelope, key):
 
     # Create the Signature node.
     signature = xmlsec.template.create(
-        envelope,
-        xmlsec.Transform.EXCL_C14N,
-        xmlsec.Transform.RSA_SHA1,
+        envelope, xmlsec.Transform.EXCL_C14N, xmlsec.Transform.RSA_SHA1
     )
 
     # Add a KeyInfo node with X509Data child to the Signature. XMLSec will fill
@@ -117,14 +115,14 @@ def sign_envelope(envelope, key):
     # Perform the actual signing.
     ctx = xmlsec.SignatureContext()
     ctx.key = key
-    sign_node(ctx, signature, envelope.find(ns(SOAP_NS, 'Body')))
+    sign_node(ctx, signature, envelope.find(ns(SOAP_NS, "Body")))
     ctx.sign(signature)
 
     # Place the X509 data inside a WSSE SecurityTokenReference within
     # KeyInfo. The recipient expects this structure, but we can't rearrange
     # like this until after signing, because otherwise xmlsec won't populate
     # the X509 data (because it doesn't understand WSSE).
-    sec_token_ref = create_xml_element(ns(WSSE_NS, 'SecurityTokenReference'))
+    sec_token_ref = create_xml_element(ns(WSSE_NS, "SecurityTokenReference"))
     sec_token_ref.append(x509_data)
     key_info.append(sec_token_ref)
 
@@ -156,15 +154,14 @@ def verify_envelope(envelope, key):
 def get_signature_context(signature, envelope):
     ctx = xmlsec.SignatureContext()
     # Find each signed element and register its ID with the signing context.
-    refs = signature.xpath('ds:SignedInfo/ds:Reference', namespaces={'ds': DS_NS})
+    refs = signature.xpath("ds:SignedInfo/ds:Reference", namespaces={"ds": DS_NS})
     for ref in refs:
         # Get the reference URI and cut off the initial '#'
-        referenced_id = ref.get('URI')[1:]
+        referenced_id = ref.get("URI")[1:]
         referenced = envelope.xpath(
-            "//*[@wsu:Id='%s']" % referenced_id,
-            namespaces={'wsu': WSU_NS},
+            "//*[@wsu:Id='%s']" % referenced_id, namespaces={"wsu": WSU_NS}
         )[0]
-        ctx.register_id(referenced, 'Id', WSU_NS)
+        ctx.register_id(referenced, "Id", WSU_NS)
     return ctx
 
 
@@ -182,7 +179,9 @@ def sign_node(ctx, signature, target):
     # Ensure the target node has a wsu:Id attribute and get its value.
     node_id = ensure_id(target)
     # Add reference to signature with URI attribute pointing to that ID.
-    ref = xmlsec.template.add_reference(signature, xmlsec.Transform.SHA1, uri='#' + node_id)
+    ref = xmlsec.template.add_reference(
+        signature, xmlsec.Transform.SHA1, uri="#" + node_id
+    )
     # This is an XML normalization transform which will be performed on the
     # target node contents before signing. This ensures that changes to
     # irrelevant whitespace, attribute ordering, etc won't invalidate the
@@ -192,15 +191,15 @@ def sign_node(ctx, signature, target):
     # use of the wsu:Id attribute for this purpose, but XMLSec doesn't
     # understand that natively. So for XMLSec to be able to find the referenced
     # node by id, we have to tell xmlsec about it using the register_id method.
-    ctx.register_id(target, 'Id', WSU_NS)
+    ctx.register_id(target, "Id", WSU_NS)
 
 
 def ns(namespace, tag_name):
-    return '{%s}%s' % (namespace, tag_name)
+    return "{%s}%s" % (namespace, tag_name)
 
 
 def get_unique_id():
-    return 'id-{0}'.format(uuid4())
+    return "id-{0}".format(uuid4())
 
 
 def ensure_id(node):
@@ -209,7 +208,7 @@ def ensure_id(node):
     Return found/created attribute value.
 
     """
-    id_attr = ns(WSU_NS, 'Id')
+    id_attr = ns(WSU_NS, "Id")
     id_val = node.get(id_attr)
     if not id_val:
         id_val = get_unique_id()
@@ -219,28 +218,28 @@ def ensure_id(node):
 
 def get_signature_node(envelope):
     try:
-        header = envelope.find(ns(SOAP_NS, 'Header'))
-        security = header.find(ns(WSSE_NS, 'Security'))
-        return security.find(ns(DS_NS, 'Signature'))
+        header = envelope.find(ns(SOAP_NS, "Header"))
+        security = header.find(ns(WSSE_NS, "Security"))
+        return security.find(ns(DS_NS, "Signature"))
     except AttributeError:
         pass
     return None
 
 
 def get_or_create_header(envelope):
-    tag_name = ns(SOAP_NS, 'Header')
+    tag_name = ns(SOAP_NS, "Header")
     header = envelope.find(tag_name)
     if header is None:
-        header = create_xml_element(tag_name, nsmap={'wsse': SOAP_NS})
+        header = create_xml_element(tag_name, nsmap={"wsse": SOAP_NS})
         envelope.insert(0, header)
     return header
 
 
 def get_or_create_security_header(envelope):
-    tag_name = ns(WSSE_NS, 'Security')
+    tag_name = ns(WSSE_NS, "Security")
     header = get_or_create_header(envelope)
     security = header.find(tag_name)
     if security is None:
-        security = create_xml_element(tag_name, nsmap={'wsse': WSSE_NS})
+        security = create_xml_element(tag_name, nsmap={"wsse": WSSE_NS})
         header.append(security)
     return security

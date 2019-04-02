@@ -1,31 +1,33 @@
-
 import logging
 
 from .exceptions import SoapServerException, SoapClientException
 
 
 class SoapRequest(object):
-
     def __init__(self, method_name, args, kwargs):
         self.method_name = method_name
         self.args = args
         self.kwargs = kwargs
 
     def __str__(self):
-        arguments = ", ".join([
-            part for part in [
-                ", ".join(str(arg) for arg in self.args),
-                ", ".join(["=".join(map(str, items)) for items in self.kwargs.items()])
-            ] if part
-        ])
+        arguments = ", ".join(
+            [
+                part
+                for part in [
+                    ", ".join(str(arg) for arg in self.args),
+                    ", ".join(
+                        ["=".join(map(str, items)) for items in self.kwargs.items()]
+                    ),
+                ]
+                if part
+            ]
+        )
         return "{method_name}({arguments})".format(
-            method_name=self.method_name,
-            arguments=arguments
+            method_name=self.method_name, arguments=arguments
         )
 
 
 class SoapResponse(object):
-
     def __init__(self, result, request, envelope_sent, envelope_received):
         self.result = result
         self.request = request
@@ -40,10 +42,11 @@ class SoapResponse(object):
 
 
 class SoapRequestor(object):
-
     def __init__(self, soap_client):
         self.soap_client = soap_client
-        self.logger = logging.getLogger('tbk.soap.requestor.{}'.format(self.__class__.__name__))
+        self.logger = logging.getLogger(
+            "tbk.soap.requestor.{}".format(self.__class__.__name__)
+        )
 
     def get_enum_value(self, enum_name, value):
         try:
@@ -61,30 +64,26 @@ class SoapRequestor(object):
 
     def request(self, method_name, *args, **kwargs):
         try:
-            request = SoapRequest(
-                method_name=method_name,
-                args=args,
-                kwargs=kwargs
-            )
+            request = SoapRequest(method_name=method_name, args=args, kwargs=kwargs)
             self.logger.info("Starting request to method `%s`", method_name)
             self.logger.debug(request)
             result, envelope_sent, envelope_received = self.soap_client.request(
-                method_name,
-                *args,
-                **kwargs)
+                method_name, *args, **kwargs
+            )
         except SoapServerException:
             self.logger.exception("SOAP server exception on method `%s`", method_name)
             raise
         except Exception:
             self.logger.exception(
-                "SOAP request method `%s` failed with unexpected exception", method_name)
+                "SOAP request method `%s` failed with unexpected exception", method_name
+            )
             raise
         else:
             response = SoapResponse(
                 result=result,
                 request=request,
                 envelope_sent=envelope_sent,
-                envelope_received=envelope_received
+                envelope_received=envelope_received,
             )
             self.logger.info("Successful request to method `%s`", method_name)
             self.logger.debug(response)
