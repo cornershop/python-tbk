@@ -25,5 +25,5 @@ class SoapClient(AbstractBaseClass):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def request(self, method_name, *args, **kwargs):
+    def request(self, request, timeout=None):
         raise NotImplementedError

@@ -23,7 +23,8 @@ AUTHOR = 'Cornershop'
 # What packages are required for this module to be executed?
 REQUIRED = [
     "zeep>=3.0.0",
-    "xmlsec>=0.6.1"
+    "xmlsec>=0.6.1",
+    "typing>=3.6.6"
 ]
 
 EXAMPLES_REQUIRE = [

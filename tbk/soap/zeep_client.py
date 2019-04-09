@@ -49,16 +49,16 @@ class ZeepSoapClient(SoapClient):
     def get_enum_value(self, enum_name, value):
         return self.create_object(enum_name, value)
 
-    def request(self, method_name, *args, **kwargs):
+    def request(self, request, timeout=None):
         try:
-            timeout = kwargs.pop("timeout", self.transport_timeout)
+            timeout = timeout or self.transport_timeout
             with self.transport.settings(timeout=timeout):
-                method = self.get_method(method_name)
-                result = method(*args, **kwargs)
+                method = self.get_method(request.method_name)
+                result = method(*request.args, **request.kwargs)
         except zeep.exceptions.Fault as fault:
             self.logger.exception("Fault")
             error, code = parse_tbk_error_message(fault.message)
-            raise SoapServerException(error, code)
+            raise SoapServerException(error, code, request)
         else:
             serialized = zeep.helpers.serialize_object(result)
             last_sent = self.get_last_sent_envelope()

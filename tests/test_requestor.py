@@ -85,7 +85,7 @@ class SoapRequestorTest(unittest.TestCase):
 
     def test_request_server_exception(self):
         request = self.soap_client.request
-        request.side_effect = SoapServerException('code', 123)
+        request.side_effect = SoapServerException('code', 123, mock.Mock(spec=SoapRequest))
 
         requestor = SoapRequestor(self.soap_client)
         with self.assertRaises(SoapServerException) as ctx:

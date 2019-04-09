@@ -5,6 +5,7 @@ import unittest
 import requests_mock
 import zeep.exceptions
 
+from tbk.soap.requestor import SoapRequest
 from tbk.soap.soap_client import SoapClient
 from tbk.soap.exceptions import InvalidSignatureResponse, TypeDoesNotExist, SoapServerException, MethodDoesNotExist
 from tbk.soap.utils import load_key_from_data
@@ -56,7 +57,8 @@ class ZeepClientTest(unittest.TestCase):
 
     def test_request_wrong_method(self, __):
         with self.assertRaises(MethodDoesNotExist):
-            self.zeep_client.request('wrong_method_name', 1)
+            request = self.create_soap_request('wrong_method_name', 1)
+            self.zeep_client.request(request)
 
     def test_request_server_exception(self, __):
         method = mock.Mock()
@@ -67,7 +69,8 @@ class ZeepClientTest(unittest.TestCase):
         method.side_effect = zeep.exceptions.Fault(message, code)
 
         with self.assertRaises(SoapServerException) as context:
-            self.zeep_client.request(method_name)
+            request = self.create_soap_request(method_name)
+            self.zeep_client.request(request)
         self.assertEqual(context.exception.error, 'Invalid amount')
         self.assertEqual(context.exception.code, 304)
 
@@ -79,7 +82,8 @@ class ZeepClientTest(unittest.TestCase):
             content=expected_response)
 
         with mock.patch('tbk.soap.zeep_client.verify_envelope', return_value=True) as verifier:
-            self.zeep_client.request('acknowledgeTransaction', 'token')
+            request = self.create_soap_request('acknowledgeTransaction', 'token')
+            self.zeep_client.request(request)
             self.assertEqual(1, verifier.call_count)
 
     @mock.patch('tbk.soap.zeep_client.verify_envelope', return_value=True)
@@ -91,7 +95,8 @@ class ZeepClientTest(unittest.TestCase):
             content=expected_response)
 
         with mock.patch('tbk.soap.zeep_client.sign_envelope', return_value=None) as signer:
-            self.zeep_client.request('acknowledgeTransaction', 'token')
+            request = self.create_soap_request('acknowledgeTransaction', 'token')
+            self.zeep_client.request(request)
             self.assertEqual(1, signer.call_count)
 
     def test_request_not_verified(self, requests):
@@ -102,7 +107,8 @@ class ZeepClientTest(unittest.TestCase):
             content=expected_response)
 
         with mock.patch('tbk.soap.zeep_client.verify_envelope', return_value=False):
-            self.assertRaises(InvalidSignatureResponse, self.zeep_client.request, 'acknowledgeTransaction', 'token')
+            request = self.create_soap_request('acknowledgeTransaction', 'token')
+            self.assertRaises(InvalidSignatureResponse, self.zeep_client.request, request)
 
     @mock.patch('tbk.soap.zeep_client.verify_envelope', return_value=True)
     def test_request_sent_received_data(self, requests, __):
@@ -116,10 +122,14 @@ class ZeepClientTest(unittest.TestCase):
 
         with mock.patch.object(self.zeep_client.client.service, 'acknowledgeTransaction') as method:
             method.side_effect = acknowledge_transaction_method
-            result, last_sent, last_received = self.zeep_client.request('acknowledgeTransaction', 'token')
+            request = self.create_soap_request('acknowledgeTransaction', 'token')
+            result, last_sent, last_received = self.zeep_client.request(request)
             method.assert_called_once_with('token')
         assert_equal_xml(expected_response, last_received)
         assert_equal_xml(requests.last_request.text.encode('utf-8'), last_sent)
+
+    def create_soap_request(self, method_name, *args, **kwargs):
+        return SoapRequest(method_name=method_name, args=args, kwargs=kwargs)
 
 
 class ZeepWssePluginTest(unittest.TestCase):
@@ -158,3 +168,4 @@ class ZeepWssePluginTest(unittest.TestCase):
         plugin = ZeepWsseSignature(None, self.tbk_cert)
 
         self.assertRaises(InvalidSignatureResponse, plugin.verify, self.envelope)
+

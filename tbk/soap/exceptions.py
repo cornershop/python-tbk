@@ -1,8 +1,9 @@
 class SoapServerException(Exception):
-    def __init__(self, error, code):
+    def __init__(self, error, code, request):
         super(SoapServerException, self).__init__(error, code)
         self.error = error
         self.code = code
+        self.request = request
 
 
 class SoapClientException(Exception):
