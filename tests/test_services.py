@@ -1,8 +1,8 @@
 import unittest
 
-from tbk.commerce import Commerce
-from tbk.services import OneClickPaymentService, WebpayService
-from tbk.soap.requestor import SoapRequestor
+from tbk import Commerce
+from tbk.services import OneClickPaymentService, WebpayService, OneClickMulticodeService
+from tbk.soap import SoapRequestor
 from .utils import mock
 
 
@@ -99,8 +99,175 @@ class OneClickPaymentServiceTest(ServiceTestCase):
             username=username
         )
 
+
+class OneClickMallServiceTest(ServiceTestCase):
+
+    service_class = OneClickMulticodeService
+
+    def test_init_inscription(self):
+        username = mock.MagicMock(spec=str)
+        email = mock.MagicMock(spec=str)
+        response_url = mock.MagicMock(spec=str)
+
+        result = self.service.init_inscription(username=username, email=email, response_url=response_url)
+
+        self.assert_result_and_request_with_input(
+            result=result,
+            method_name='initInscription',
+            input_name='wsOneClickMulticodeInitInscriptionInput',
+            email=email,
+            returnUrl=response_url,
+            username=username)
+
+    def test_finish_inscription(self):
+        token = mock.MagicMock(spec=str)
+
+        result = self.service.finish_inscription(token)
+
+        self.assert_result_and_request_with_input(
+            result=result,
+            method_name='finishInscription',
+            input_name='wsOneClickMulticodeFinishInscriptionInput',
+            token=token)
+
+    def test_authorize(self):
+        buy_order = mock.MagicMock(spec=str)
+        tbk_user = mock.MagicMock(spec=str)
+        username = mock.MagicMock(spec=str)
+        amount = mock.MagicMock(spec=int)
+        commerce = mock.MagicMock(spec=str)
+
+        stores_inputs = [
+            {
+                "buy_order": buy_order,
+                "shares": 1,
+                "amount": amount,
+                "commerce_id": commerce
+            }
+        ]
+
+        result = self.service.authorize(buy_order, tbk_user, username, stores_inputs)
+
+        self.assert_result_and_request_with_input(
+            result=result,
+            method_name='authorize',
+            input_name='wsOneClickMulticodePaymentInput',
+            buyOrder=buy_order,
+            tbkUser=tbk_user,
+            username=username,
+            storesInput=[
+                {
+                    "buyOrder": buy_order,
+                    "sharesNumber": 1,
+                    "amount": amount,
+                    "commerceId": commerce
+                }
+            ]
+        )
+
+    def test_authorize_multiple(self):
+        buy_order = mock.MagicMock(spec=str)
+        tbk_user = mock.MagicMock(spec=str)
+        username = mock.MagicMock(spec=str)
+        amount = mock.MagicMock(spec=int)
+        commerce = mock.MagicMock(spec=str)
+        buy_order_2 = mock.MagicMock(spec=str)
+        amount_2 = mock.MagicMock(spec=int)
+        commerce_2 = mock.MagicMock(spec=str)
+
+        stores_inputs = [
+            {
+                "buy_order": buy_order,
+                "shares": 1,
+                "amount": amount,
+                "commerce_id": commerce
+            },
+            {
+                "buy_order": buy_order_2,
+                "shares": 3,
+                "amount": amount_2,
+                "commerce_id": commerce_2
+            }
+        ]
+
+        result = self.service.authorize(buy_order, tbk_user, username, stores_inputs)
+
+        self.assert_result_and_request_with_input(
+            result=result,
+            method_name='authorize',
+            input_name='wsOneClickMulticodePaymentInput',
+            buyOrder=buy_order,
+            tbkUser=tbk_user,
+            username=username,
+            storesInput=[
+                {
+                    "buyOrder": buy_order,
+                    "sharesNumber": 1,
+                    "amount": amount,
+                    "commerceId": commerce
+                },
+                {
+                    "buyOrder": buy_order_2,
+                    "sharesNumber": 3,
+                    "amount": amount_2,
+                    "commerceId": commerce_2
+                }
+            ]
+        )
+
+    def test_reverse(self):
+        buyorder = mock.MagicMock(spec=str)
+
+        result = self.service.reverse(buyorder)
+
+        self.assert_result_and_request_with_input(
+            result=result,
+            method_name='reverse',
+            input_name='wsOneClickMulticodeReverseInput',
+            buyOrder=buyorder
+        )
+
+    def test_nullify(self):
+        buy_order = mock.MagicMock(spec=str)
+        authorization_code = mock.MagicMock(spec=str)
+        authorized_amount = mock.MagicMock(spec=int)
+        commerce = mock.MagicMock(spec=str)
+        nullify_amount = authorized_amount / 2
+
+        result = self.service.nullify(
+            commerce=commerce,
+            buy_order=buy_order,
+            authorized_amount=authorized_amount,
+            authorization_code=authorization_code,
+            nullify_amount=nullify_amount
+        )
+
+        self.assert_result_and_request_with_input(
+            result=result,
+            method_name='nullify',
+            input_name='wsOneClickMulticodeNullificationInput',
+            commerceId=commerce,
+            buyOrder=buy_order,
+            authorizedAmount=authorized_amount,
+            authorizationCode=authorization_code,
+            nullifyAmount=nullify_amount
+        )
+
+    def test_remove_user(self):
+        tbk_user = mock.MagicMock(spec=str)
+        username = mock.MagicMock(spec=str)
+
+        result = self.service.remove_user(tbk_user, username)
+
+        self.assert_result_and_request_with_input(
+            result=result,
+            method_name='removeInscription',
+            input_name='wsOneClickMulticodeRemoveInscriptionInput',
+            tbkUser=tbk_user,
+            username=username
+        )
+
 class WebpayServiceTest(ServiceTestCase):
 
     service_class = WebpayService
 
-    

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Nullify{% endblock title %}
+
+{% block header %}
+<h1>Mall</h1>
+<h2>nullify</h2>
+{% endblock header %}
+
+    {% block content %}
+  {{nullify}}
+
+<form action="/mall/reverse/nullify" method="POST">
+    <label for="commerce">Commerce
+        <input type="text" name="commerce" id="commerce" value="{{nullify.commerceId}}">
+    </label>
+    </label>
+    <label for="buy_order">Buy Order
+      <input type="text" name="buy_order" id="buy_order" value="{{nullify.buyOrder}}">
+    </label>
+    <label for="nullify_amount">Amount to nullify
+        <input type="text" name="nullify_amount" id="nullify_amount" value="{{nullify.nullifiedAmount}}">
+    </label>
+    <button type="submit">Nullify refund</button>
+</form>
+
+
+{% endblock %}
