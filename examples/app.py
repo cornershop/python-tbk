@@ -4,7 +4,6 @@ from datetime import datetime
 import random
 
 import flask
-
 import tbk
 
 CERTIFICATES_DIR = os.path.join(os.path.dirname(__file__), 'commerces')
@@ -34,11 +33,14 @@ logging.getLogger("tbk").setLevel(logging.DEBUG)
 logging.getLogger('suds.transport.http').setLevel(logging.DEBUG)
 
 HOST = os.getenv('HOST', 'http://localhost')
-PORT = os.getenv('PORT')
+PORT = os.getenv('PORT', '5000')
 BASE_URL = '{host}:{port}'.format(host=HOST, port=PORT)
 
-NORMAL_COMMERCE_CODE = "597020000541"
-ONECLICK_COMMERCE_CODE = "597020000593"
+NORMAL_COMMERCE_CODE = "597020000540"
+ONECLICK_COMMERCE_CODE = "597044444405"
+ONECLICK_MALL_CODE = "597044444429"
+ONECLICK_MALL_COMMERCE_1 = "597044444430"
+ONECLICK_MALL_COMMERCE_2 = "597044444431"
 
 
 normal_commerce_data = load_commerce_data(NORMAL_COMMERCE_CODE)
@@ -59,9 +61,18 @@ oneclick_commerce = tbk.commerce.Commerce(
     tbk_cert_data=oneclick_commerce_data['tbk_cert_data'],
     environment=tbk.environments.DEVELOPMENT)
 
+oneclick_mall_commerce_data = load_commerce_data(ONECLICK_MALL_CODE)
+oneclick_mall_commerce = tbk.commerce.Commerce(
+    commerce_code=ONECLICK_MALL_CODE,
+    key_data=oneclick_mall_commerce_data['key_data'],
+    cert_data=oneclick_mall_commerce_data['cert_data'],
+    tbk_cert_data=oneclick_mall_commerce_data['tbk_cert_data'],
+    environment=tbk.environments.DEVELOPMENT)
+
 
 oneclick_service = tbk.services.OneClickPaymentService(oneclick_commerce)
 oneclick_commerce_service = tbk.services.CommerceIntegrationService(oneclick_commerce)
+oneclick_mall_service = tbk.services.OneClickMulticodeService(oneclick_mall_commerce)
 
 
 @app.route("/")
@@ -84,7 +95,6 @@ def normal_init_transaction():
         session_id=flask.request.form['session_id']
     )
     return flask.render_template('normal/init.html', transaction=transaction)
-
 
 @app.route("/normal/return", methods=['POST'])
 def normal_return_from_webpay():
@@ -173,3 +183,128 @@ def oneclick_release():
     release = oneclick_service.code_reverse_oneclick(buyorder=buy_order)
     return flask.render_template('oneclick/released.html',
                                  release=release)
+
+# ONECLICK MALL endpoints
+
+@app.route("/mall/")
+def mall_index():
+    return flask.render_template('mall/index.html')
+
+
+@app.route("/mall/init", methods=['POST'])
+def mall_init_inscription():
+    inscription = oneclick_mall_service.init_inscription(
+        username=flask.request.form['username'],
+        email=flask.request.form['email'],
+        response_url=BASE_URL + '/mall/return'
+    )
+    return flask.render_template('mall/init.html', inscription=inscription)
+
+
+@app.route("/mall/return", methods=['POST'])
+def mall_return_from_webpay():
+    token = flask.request.form['TBK_TOKEN']
+    transaction = oneclick_mall_service.finish_inscription(token)
+    parent_order = int(datetime.utcnow().strftime('%Y%m%d%H%M%S')) * 1000 + random.randint(1000, 9999)
+    buy_order_1 = int(datetime.utcnow().strftime('%Y%m%d%H%M%S')) * 1000 + random.randint(1000, 9999)
+    buy_order_2 = int(datetime.utcnow().strftime('%Y%m%d%H%M%S')) * 1000 + random.randint(1000, 9999)
+    return flask.render_template(
+        'mall/return.html',
+        transaction=transaction,
+        parent_order=parent_order,
+        buy_order_1=buy_order_1,
+        buy_order_2=buy_order_2)
+
+
+@app.route("/mall/authorize", methods=['POST'])
+def mall_authorize():
+    parent_order = flask.request.form['parent_order']
+    tbk_user = flask.request.form['tbk_user']
+    username = flask.request.form['username']
+
+    buy_order_1 = flask.request.form['buy_order_1']
+    amount_1 = flask.request.form['amount_1']
+    shares_1 = flask.request.form['shares_1']
+
+    buy_order_2 = flask.request.form['buy_order_2']
+    amount_2 = flask.request.form['amount_2']
+    shares_2 = flask.request.form['shares_2']
+
+    store_inputs = [
+        {
+            "buy_order": buy_order_1,
+            "amount": amount_1,
+            "shares": shares_1,
+            "commerce_id": ONECLICK_MALL_COMMERCE_1
+        },
+        {
+            "buy_order": buy_order_2,
+            "amount": amount_2,
+            "shares": shares_2,
+            "commerce_id": ONECLICK_MALL_COMMERCE_2
+        }
+    ]
+
+    transaction = oneclick_mall_service.authorize(
+        buy_order=parent_order,
+        username=username,
+        tbk_user=tbk_user,
+        store_inputs=store_inputs
+    )
+    return flask.render_template('mall/authorized.html',
+                                 transaction=transaction,
+                                 parent_order=parent_order,
+                                 buy_order_1=buy_order_1,
+                                 buy_order_2=buy_order_2,
+                                 amount_1=amount_1,
+                                 amount_2=amount_2,
+                                 commerce_1=ONECLICK_MALL_COMMERCE_1,
+                                 commerce_2=ONECLICK_MALL_COMMERCE_2)
+
+
+@app.route("/mall/nullify", methods=['POST'])
+def mall_refund():
+    commerce = flask.request.form['commerce']
+    buy_order = flask.request.form['buy_order']
+    authorized_amount = int(flask.request.form['authorized_amount'])
+    authorization_code = int(flask.request.form['authorization_code'])
+    nullify_amount = int(flask.request.form['nullify_amount'])
+    nullify = oneclick_mall_service.nullify(
+        commerce=commerce,
+        buy_order=buy_order,
+        authorization_code=authorization_code,
+        authorized_amount=authorized_amount,
+        nullify_amount=nullify_amount)
+    return flask.render_template('mall/refunded.html',
+                                 nullify=nullify)
+
+
+@app.route("/mall/reverse", methods=['POST'])
+def mall_release():
+    buy_order = flask.request.form['buy_order']
+    release = oneclick_mall_service.reverse(buy_order=buy_order)
+    return flask.render_template('mall/released.html',
+                                 release=release)
+
+
+@app.route("/mall/reverse/nullify", methods=['POST'])
+def mall_release_nullification():
+    buy_order = flask.request.form['buy_order']
+    nullify_amount = flask.request.form['nullify_amount']
+    commerce = flask.request.form['commerce']
+    release = oneclick_mall_service.reverse_nullification(
+        buy_order=buy_order,
+        nullify_amount=nullify_amount,
+        commerce=commerce
+    )
+    return flask.render_template('mall/reverse_nullify.html',
+                                 release=release)
+
+
+@app.route("/mall/remove", methods=['POST'])
+def mall_remove_user():
+    tbk_user = flask.request.form['tbk_user']
+    username = flask.request.form['username']
+    remove = oneclick_mall_service.remove_user(tbk_user=tbk_user, username=username)
+    return flask.render_template('mall/remove.html',
+                                 remove=remove)
