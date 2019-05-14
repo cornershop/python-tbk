@@ -261,16 +261,33 @@ def mall_authorize():
                                  commerce_1=ONECLICK_MALL_COMMERCE_1,
                                  commerce_2=ONECLICK_MALL_COMMERCE_2)
 
+@app.route("/mall/capture", methods=['POST'])
+def mall_capture():
+    commerce = flask.request.form['commerce']
+    buy_order = flask.request.form['buy_order']
+    capture_amount = int(flask.request.form['capture_amount'])
+    authorization_code = int(flask.request.form['authorization_code'])
+
+    capture_response = oneclick_mall_service.capture(
+        authorization_code=authorization_code,
+        commerce_id=commerce,
+        buy_order=buy_order,
+        capture_amount=capture_amount
+    )
+
+    return flask.render_template('mall/captured.html',
+                                 capture=capture_response)
+
 
 @app.route("/mall/nullify", methods=['POST'])
 def mall_refund():
-    commerce = flask.request.form['commerce']
+    commerce_id = flask.request.form['commerce']
     buy_order = flask.request.form['buy_order']
     authorized_amount = int(flask.request.form['authorized_amount'])
     authorization_code = int(flask.request.form['authorization_code'])
     nullify_amount = int(flask.request.form['nullify_amount'])
     nullify = oneclick_mall_service.nullify(
-        commerce=commerce,
+        commerce_id=commerce_id,
         buy_order=buy_order,
         authorization_code=authorization_code,
         authorized_amount=authorized_amount,
@@ -291,11 +308,11 @@ def mall_release():
 def mall_release_nullification():
     buy_order = flask.request.form['buy_order']
     nullify_amount = flask.request.form['nullify_amount']
-    commerce = flask.request.form['commerce']
+    commerce_id = flask.request.form['commerce']
     release = oneclick_mall_service.reverse_nullification(
         buy_order=buy_order,
         nullify_amount=nullify_amount,
-        commerce=commerce
+        commerce_id=commerce_id
     )
     return flask.render_template('mall/reverse_nullify.html',
                                  release=release)

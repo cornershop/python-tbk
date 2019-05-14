@@ -231,11 +231,11 @@ class OneClickMallServiceTest(ServiceTestCase):
         buy_order = mock.MagicMock(spec=str)
         authorization_code = mock.MagicMock(spec=str)
         authorized_amount = mock.MagicMock(spec=int)
-        commerce = mock.MagicMock(spec=str)
+        commerce_id = mock.MagicMock(spec=str)
         nullify_amount = authorized_amount / 2
 
         result = self.service.nullify(
-            commerce=commerce,
+            commerce_id=commerce_id,
             buy_order=buy_order,
             authorized_amount=authorized_amount,
             authorization_code=authorization_code,
@@ -246,11 +246,34 @@ class OneClickMallServiceTest(ServiceTestCase):
             result=result,
             method_name='nullify',
             input_name='wsOneClickMulticodeNullificationInput',
-            commerceId=commerce,
+            commerceId=commerce_id,
             buyOrder=buy_order,
             authorizedAmount=authorized_amount,
             authorizationCode=authorization_code,
             nullifyAmount=nullify_amount
+        )
+
+    def test_capture(self):
+        buy_order = mock.MagicMock(spec=str)
+        authorization_code = mock.MagicMock(spec=str)
+        capture_amount = mock.MagicMock(spec=int)
+        commerce_id = mock.MagicMock(spec=str)
+
+        result = self.service.capture(
+            commerce_id=commerce_id,
+            buy_order=buy_order,
+            capture_amount=capture_amount,
+            authorization_code=authorization_code,
+        )
+
+        self.assert_result_and_request_with_input(
+            result=result,
+            method_name='capture',
+            input_name='wsOneClickMulticodeCaptureInput',
+            commerceId=commerce_id,
+            buyOrder=buy_order,
+            captureAmount=capture_amount,
+            authorizationCode=authorization_code
         )
 
     def test_remove_user(self):
@@ -265,6 +288,26 @@ class OneClickMallServiceTest(ServiceTestCase):
             input_name='wsOneClickMulticodeRemoveInscriptionInput',
             tbkUser=tbk_user,
             username=username
+        )
+
+    def test_reverse_nullification(self):
+        buy_order = mock.MagicMock(spec=str)
+        nullify_amount = mock.MagicMock(spec=int)
+        commerce_id = mock.MagicMock(spec=str)
+
+        result = self.service.reverse_nullification(
+            buy_order=buy_order,
+            commerce_id=commerce_id,
+            nullify_amount=nullify_amount
+        )
+
+        self.assert_result_and_request_with_input(
+            result=result,
+            method_name='reverseNullification',
+            input_name='wsOneClickMulticodeReverseNullificationInput',
+            commerceId=commerce_id,
+            nullifyAmount=nullify_amount,
+            buyOrder=buy_order
         )
 
 class WebpayServiceTest(ServiceTestCase):
