@@ -274,15 +274,26 @@ class OneClickMulticodeService(TBKWebService):
                 }
                 for store_input in store_inputs]
         }
-        pay_input = self.soap_requestor.create_object("wsOneClickMultico"
-                                                      "dePaymentInput", **input_args)
+        pay_input = self.soap_requestor.create_object("wsOneClickMulticodePaymentInput", **input_args)
         return self.soap_requestor.request("authorize", pay_input)
 
-    def reverse_nullification(self, buy_order, nullify_amount, commerce):
+    def capture(self, authorization_code, commerce_id, buy_order, capture_amount):
+
+        input_args = {
+            "commerceId": commerce_id,
+            "buyOrder": buy_order,
+            "authorizationCode": authorization_code,
+            "captureAmount": capture_amount
+        }
+
+        capture_input = self.soap_requestor.create_object("wsOneClickMulticodeCaptureInput", **input_args)
+        return self.soap_requestor.request("capture", capture_input)
+
+    def reverse_nullification(self, buy_order, nullify_amount, commerce_id):
         reverse_input = self.soap_requestor.create_object(
             "wsOneClickMulticodeReverseNullificationInput",
             buyOrder=buy_order,
-            commerceId=commerce,
+            commerceId=commerce_id,
             nullifyAmount=nullify_amount
         )
         return self.soap_requestor.request("reverseNullification", reverse_input)
@@ -294,10 +305,10 @@ class OneClickMulticodeService(TBKWebService):
         )
         return self.soap_requestor.request("reverse", reverse_input)
 
-    def nullify(self, commerce, buy_order, authorization_code, authorized_amount, nullify_amount):
+    def nullify(self, commerce_id, buy_order, authorization_code, authorized_amount, nullify_amount):
         nullify_input = self.soap_requestor.create_object(
             "wsOneClickMulticodeNullificationInput",
-            commerceId=commerce,
+            commerceId=commerce_id,
             buyOrder=buy_order,
             authorizedAmount=authorized_amount,
             authorizationCode=authorization_code,
@@ -314,3 +325,4 @@ class OneClickMulticodeService(TBKWebService):
         return self.soap_requestor.request(
             "removeInscription", one_click_remove_user_input
         )
+

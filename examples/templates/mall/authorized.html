@@ -34,7 +34,22 @@
     </label>
     <button type="submit">Create refund</button>
 </form>
-
+<form action="/mall/capture" method="POST">
+    <label for="commerce">Commerce (1)
+        <input type="text" name="commerce" id="commerce" value="{{commerce_1}}">
+    </label>
+    </label>
+    <label for="buy_order">Buy Order
+      <input type="text" name="buy_order" id="buy_order" value="{{buy_order_1}}">
+    </label>
+    <label for="authorization_code">Auth code (1)
+        <input type="text" name="authorization_code" id="authorization_code" value="{{transaction.storesOutput[0].authorizationCode}}">
+    </label>
+    <label for="nullify_amount">Amount to Capture (1)
+        <input type="text" name="capture_amount" id="capture_amount" value="{{amount_1}}">
+    </label>
+    <button type="submit">Capture</button>
+</form>
 <form action="/mall/nullify" method="POST">
     <label for="commerce">Commerce (2)
         <input type="text" name="commerce" id="commerce" value="{{commerce_2}}">
@@ -53,6 +68,22 @@
         <input type="text" name="nullify_amount" id="nullify_amount" value="{{amount_2}}">
     </label>
     <button type="submit">Create refund</button>
+</form>
+<form action="/mall/capture" method="POST">
+    <label for="commerce">Commerce (2)
+        <input type="text" name="commerce" id="commerce" value="{{commerce_2}}">
+    </label>
+    </label>
+    <label for="buy_order">Buy Order
+      <input type="text" name="buy_order" id="buy_order" value="{{buy_order_2}}">
+    </label>
+    <label for="authorization_code">Auth code (2)
+        <input type="text" name="authorization_code" id="authorization_code" value="{{transaction.storesOutput[1].authorizationCode}}">
+    </label>
+    <label for="nullify_amount">Amount to Capture (2)
+        <input type="text" name="capture_amount" id="capture_amount" value="{{amount_2}}">
+    </label>
+    <button type="submit">Capture</button>
 </form>
 <form action="/mall/reverse" method="POST">
     <label for="buy_order">Buy Order
