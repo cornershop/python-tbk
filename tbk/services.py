@@ -73,7 +73,7 @@ class OneClickPaymentService(TBKWebService):
             "oneClickRemoveUserInput", **arguments
         )
         return self.soap_requestor.request(
-            "oneClickRemoveUser", one_click_remove_user_input
+            "removeUser", one_click_remove_user_input
         )
 
 
