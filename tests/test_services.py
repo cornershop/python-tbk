@@ -102,5 +102,3 @@ class OneClickPaymentServiceTest(ServiceTestCase):
 class WebpayServiceTest(ServiceTestCase):
 
     service_class = WebpayService
-
-    
