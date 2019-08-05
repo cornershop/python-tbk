@@ -1,5 +1,3 @@
-
-
 class SoapRequestException(Exception):
     def __init__(self, error, request):
         self.error = error

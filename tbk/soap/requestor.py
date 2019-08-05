@@ -64,11 +64,13 @@ class SoapRequestor(object):
 
     def request(self, method_name, *args, **kwargs):
         try:
-            timeout = kwargs.pop('timeout', None)
+            timeout = kwargs.pop("timeout", None)
             request = SoapRequest(method_name=method_name, args=args, kwargs=kwargs)
             self.logger.info("Starting request to method `%s`", method_name)
             self.logger.debug(request)
-            result, envelope_sent, envelope_received = self.soap_client.request(request, timeout=timeout)
+            result, envelope_sent, envelope_received = self.soap_client.request(
+                request, timeout=timeout
+            )
         except SoapServerException:
             self.logger.exception("SOAP server exception on method `%s`", method_name)
             raise

@@ -12,7 +12,8 @@ from .exceptions import (
     SoapServerException,
     MethodDoesNotExist,
     TypeDoesNotExist,
-    SoapRequestException,)
+    SoapRequestException,
+)
 from .utils import load_key_from_data, parse_tbk_error_message, xml_to_string
 
 

@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import os
+
 try:
     from unittest import mock  # noqa
 except ImportError:
@@ -9,7 +10,7 @@ except ImportError:
 from lxml import etree
 
 HERE = os.path.abspath(os.path.dirname(__file__))
-FIXTURES_DIR = os.path.join(HERE, 'fixtures')
+FIXTURES_DIR = os.path.join(HERE, "fixtures")
 
 
 def get_fixture_filepath(filename):
@@ -17,11 +18,11 @@ def get_fixture_filepath(filename):
 
 
 def get_fixture_url(filename):
-    return 'file://{}'.format(get_fixture_filepath(filename))
+    return "file://{}".format(get_fixture_filepath(filename))
 
 
 def get_fixture_data(filename):
-    with open(get_fixture_filepath(filename), 'r') as file:
+    with open(get_fixture_filepath(filename), "r") as file:
         return file.read()
 
 
@@ -32,4 +33,4 @@ def assert_equal_xml(first, second):
 
 
 def get_xml_envelope(filename):
-    return etree.fromstring(get_fixture_data(filename).encode('utf-8'))
+    return etree.fromstring(get_fixture_data(filename).encode("utf-8"))
