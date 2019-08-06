@@ -270,11 +270,14 @@ class OneClickMulticodeService(TBKWebService):
                     "buyOrder": store_input["buy_order"],
                     "sharesNumber": store_input["shares"],
                     "amount": store_input["amount"],
-                    "commerceId": store_input["commerce_id"]
+                    "commerceId": store_input["commerce_id"],
                 }
-                for store_input in store_inputs]
+                for store_input in store_inputs
+            ],
         }
-        pay_input = self.soap_requestor.create_object("wsOneClickMulticodePaymentInput", **input_args)
+        pay_input = self.soap_requestor.create_object(
+            "wsOneClickMulticodePaymentInput", **input_args
+        )
         return self.soap_requestor.request("authorize", pay_input)
 
     def capture(self, authorization_code, commerce_id, buy_order, capture_amount):
@@ -283,10 +286,12 @@ class OneClickMulticodeService(TBKWebService):
             "commerceId": commerce_id,
             "buyOrder": buy_order,
             "authorizationCode": authorization_code,
-            "captureAmount": capture_amount
+            "captureAmount": capture_amount,
         }
 
-        capture_input = self.soap_requestor.create_object("wsOneClickMulticodeCaptureInput", **input_args)
+        capture_input = self.soap_requestor.create_object(
+            "wsOneClickMulticodeCaptureInput", **input_args
+        )
         return self.soap_requestor.request("capture", capture_input)
 
     def reverse_nullification(self, buy_order, nullify_amount, commerce_id):
@@ -294,25 +299,31 @@ class OneClickMulticodeService(TBKWebService):
             "wsOneClickMulticodeReverseNullificationInput",
             buyOrder=buy_order,
             commerceId=commerce_id,
-            nullifyAmount=nullify_amount
+            nullifyAmount=nullify_amount,
         )
         return self.soap_requestor.request("reverseNullification", reverse_input)
 
     def reverse(self, buy_order):
         reverse_input = self.soap_requestor.create_object(
-            "wsOneClickMulticodeReverseInput",
-            buyOrder=buy_order
+            "wsOneClickMulticodeReverseInput", buyOrder=buy_order
         )
         return self.soap_requestor.request("reverse", reverse_input)
 
-    def nullify(self, commerce_id, buy_order, authorization_code, authorized_amount, nullify_amount):
+    def nullify(
+        self,
+        commerce_id,
+        buy_order,
+        authorization_code,
+        authorized_amount,
+        nullify_amount,
+    ):
         nullify_input = self.soap_requestor.create_object(
             "wsOneClickMulticodeNullificationInput",
             commerceId=commerce_id,
             buyOrder=buy_order,
             authorizedAmount=authorized_amount,
             authorizationCode=authorization_code,
-            nullifyAmount=nullify_amount
+            nullifyAmount=nullify_amount,
         )
         return self.soap_requestor.request("nullify", nullify_input)
 
@@ -325,4 +336,3 @@ class OneClickMulticodeService(TBKWebService):
         return self.soap_requestor.request(
             "removeInscription", one_click_remove_user_input
         )
-

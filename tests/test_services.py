@@ -13,16 +13,22 @@ class ServiceTestCase(unittest.TestCase):
     def setUp(self):
         self.soap_requestor = mock.MagicMock(spec=SoapRequestor)
         self.commerce = mock.MagicMock(
-            spec=Commerce, commerce_code=mock.MagicMock(spec=str), environment=mock.MagicMock(spec=str))
+            spec=Commerce,
+            commerce_code=mock.MagicMock(spec=str),
+            environment=mock.MagicMock(spec=str),
+        )
         self.service = self.service_class(self.commerce, self.soap_requestor)
 
-    def assert_result_and_request_with_input(self, result, method_name, input_name, **input_kwargs):
+    def assert_result_and_request_with_input(
+        self, result, method_name, input_name, **input_kwargs
+    ):
         self.assertEqual(self.soap_requestor.request.return_value, result)
         self.soap_requestor.create_object.assert_called_once_with(
             input_name, **input_kwargs
         )
         self.soap_requestor.request.assert_called_once_with(
-            method_name, self.soap_requestor.create_object.return_value)
+            method_name, self.soap_requestor.create_object.return_value
+        )
 
 
 class OneClickPaymentServiceTest(ServiceTestCase):
@@ -34,15 +40,18 @@ class OneClickPaymentServiceTest(ServiceTestCase):
         email = mock.MagicMock(spec=str)
         response_url = mock.MagicMock(spec=str)
 
-        result = self.service.init_inscription(username=username, email=email, response_url=response_url)
+        result = self.service.init_inscription(
+            username=username, email=email, response_url=response_url
+        )
 
         self.assert_result_and_request_with_input(
             result=result,
-            method_name='initInscription',
-            input_name='oneClickInscriptionInput',
+            method_name="initInscription",
+            input_name="oneClickInscriptionInput",
             email=email,
             responseURL=response_url,
-            username=username)
+            username=username,
+        )
 
     def test_finish_inscription(self):
         token = mock.MagicMock(spec=str)
@@ -51,9 +60,10 @@ class OneClickPaymentServiceTest(ServiceTestCase):
 
         self.assert_result_and_request_with_input(
             result=result,
-            method_name='finishInscription',
-            input_name='oneClickFinishInscriptionInput',
-            token=token)
+            method_name="finishInscription",
+            input_name="oneClickFinishInscriptionInput",
+            token=token,
+        )
 
     def test_authorize(self):
         buy_order = mock.MagicMock(spec=str)
@@ -65,12 +75,12 @@ class OneClickPaymentServiceTest(ServiceTestCase):
 
         self.assert_result_and_request_with_input(
             result=result,
-            method_name='authorize',
-            input_name='oneClickPayInput',
+            method_name="authorize",
+            input_name="oneClickPayInput",
             buyOrder=buy_order,
             tbkUser=tbk_user,
             username=username,
-            amount=amount
+            amount=amount,
         )
 
     def test_code_reverse_oneclick(self):
@@ -80,9 +90,9 @@ class OneClickPaymentServiceTest(ServiceTestCase):
 
         self.assert_result_and_request_with_input(
             result=result,
-            method_name='codeReverseOneClick',
-            input_name='oneClickReverseInput',
-            buyorder=buyorder
+            method_name="codeReverseOneClick",
+            input_name="oneClickReverseInput",
+            buyorder=buyorder,
         )
 
     def test_remove_user(self):
@@ -93,10 +103,10 @@ class OneClickPaymentServiceTest(ServiceTestCase):
 
         self.assert_result_and_request_with_input(
             result=result,
-            method_name='oneClickRemoveUser',
-            input_name='oneClickRemoveUserInput',
+            method_name="oneClickRemoveUser",
+            input_name="oneClickRemoveUserInput",
             tbkUser=tbk_user,
-            username=username
+            username=username,
         )
 
 
@@ -109,15 +119,18 @@ class OneClickMallServiceTest(ServiceTestCase):
         email = mock.MagicMock(spec=str)
         response_url = mock.MagicMock(spec=str)
 
-        result = self.service.init_inscription(username=username, email=email, response_url=response_url)
+        result = self.service.init_inscription(
+            username=username, email=email, response_url=response_url
+        )
 
         self.assert_result_and_request_with_input(
             result=result,
-            method_name='initInscription',
-            input_name='wsOneClickMulticodeInitInscriptionInput',
+            method_name="initInscription",
+            input_name="wsOneClickMulticodeInitInscriptionInput",
             email=email,
             returnUrl=response_url,
-            username=username)
+            username=username,
+        )
 
     def test_finish_inscription(self):
         token = mock.MagicMock(spec=str)
@@ -126,9 +139,10 @@ class OneClickMallServiceTest(ServiceTestCase):
 
         self.assert_result_and_request_with_input(
             result=result,
-            method_name='finishInscription',
-            input_name='wsOneClickMulticodeFinishInscriptionInput',
-            token=token)
+            method_name="finishInscription",
+            input_name="wsOneClickMulticodeFinishInscriptionInput",
+            token=token,
+        )
 
     def test_authorize(self):
         buy_order = mock.MagicMock(spec=str)
@@ -142,7 +156,7 @@ class OneClickMallServiceTest(ServiceTestCase):
                 "buy_order": buy_order,
                 "shares": 1,
                 "amount": amount,
-                "commerce_id": commerce
+                "commerce_id": commerce,
             }
         ]
 
@@ -150,8 +164,8 @@ class OneClickMallServiceTest(ServiceTestCase):
 
         self.assert_result_and_request_with_input(
             result=result,
-            method_name='authorize',
-            input_name='wsOneClickMulticodePaymentInput',
+            method_name="authorize",
+            input_name="wsOneClickMulticodePaymentInput",
             buyOrder=buy_order,
             tbkUser=tbk_user,
             username=username,
@@ -160,9 +174,9 @@ class OneClickMallServiceTest(ServiceTestCase):
                     "buyOrder": buy_order,
                     "sharesNumber": 1,
                     "amount": amount,
-                    "commerceId": commerce
+                    "commerceId": commerce,
                 }
-            ]
+            ],
         )
 
     def test_authorize_multiple(self):
@@ -180,22 +194,22 @@ class OneClickMallServiceTest(ServiceTestCase):
                 "buy_order": buy_order,
                 "shares": 1,
                 "amount": amount,
-                "commerce_id": commerce
+                "commerce_id": commerce,
             },
             {
                 "buy_order": buy_order_2,
                 "shares": 3,
                 "amount": amount_2,
-                "commerce_id": commerce_2
-            }
+                "commerce_id": commerce_2,
+            },
         ]
 
         result = self.service.authorize(buy_order, tbk_user, username, stores_inputs)
 
         self.assert_result_and_request_with_input(
             result=result,
-            method_name='authorize',
-            input_name='wsOneClickMulticodePaymentInput',
+            method_name="authorize",
+            input_name="wsOneClickMulticodePaymentInput",
             buyOrder=buy_order,
             tbkUser=tbk_user,
             username=username,
@@ -204,15 +218,15 @@ class OneClickMallServiceTest(ServiceTestCase):
                     "buyOrder": buy_order,
                     "sharesNumber": 1,
                     "amount": amount,
-                    "commerceId": commerce
+                    "commerceId": commerce,
                 },
                 {
                     "buyOrder": buy_order_2,
                     "sharesNumber": 3,
                     "amount": amount_2,
-                    "commerceId": commerce_2
-                }
-            ]
+                    "commerceId": commerce_2,
+                },
+            ],
         )
 
     def test_reverse(self):
@@ -222,9 +236,9 @@ class OneClickMallServiceTest(ServiceTestCase):
 
         self.assert_result_and_request_with_input(
             result=result,
-            method_name='reverse',
-            input_name='wsOneClickMulticodeReverseInput',
-            buyOrder=buyorder
+            method_name="reverse",
+            input_name="wsOneClickMulticodeReverseInput",
+            buyOrder=buyorder,
         )
 
     def test_nullify(self):
@@ -239,18 +253,18 @@ class OneClickMallServiceTest(ServiceTestCase):
             buy_order=buy_order,
             authorized_amount=authorized_amount,
             authorization_code=authorization_code,
-            nullify_amount=nullify_amount
+            nullify_amount=nullify_amount,
         )
 
         self.assert_result_and_request_with_input(
             result=result,
-            method_name='nullify',
-            input_name='wsOneClickMulticodeNullificationInput',
+            method_name="nullify",
+            input_name="wsOneClickMulticodeNullificationInput",
             commerceId=commerce_id,
             buyOrder=buy_order,
             authorizedAmount=authorized_amount,
             authorizationCode=authorization_code,
-            nullifyAmount=nullify_amount
+            nullifyAmount=nullify_amount,
         )
 
     def test_capture(self):
@@ -268,12 +282,12 @@ class OneClickMallServiceTest(ServiceTestCase):
 
         self.assert_result_and_request_with_input(
             result=result,
-            method_name='capture',
-            input_name='wsOneClickMulticodeCaptureInput',
+            method_name="capture",
+            input_name="wsOneClickMulticodeCaptureInput",
             commerceId=commerce_id,
             buyOrder=buy_order,
             captureAmount=capture_amount,
-            authorizationCode=authorization_code
+            authorizationCode=authorization_code,
         )
 
     def test_remove_user(self):
@@ -284,10 +298,10 @@ class OneClickMallServiceTest(ServiceTestCase):
 
         self.assert_result_and_request_with_input(
             result=result,
-            method_name='removeInscription',
-            input_name='wsOneClickMulticodeRemoveInscriptionInput',
+            method_name="removeInscription",
+            input_name="wsOneClickMulticodeRemoveInscriptionInput",
             tbkUser=tbk_user,
-            username=username
+            username=username,
         )
 
     def test_reverse_nullification(self):
@@ -296,21 +310,19 @@ class OneClickMallServiceTest(ServiceTestCase):
         commerce_id = mock.MagicMock(spec=str)
 
         result = self.service.reverse_nullification(
-            buy_order=buy_order,
-            commerce_id=commerce_id,
-            nullify_amount=nullify_amount
+            buy_order=buy_order, commerce_id=commerce_id, nullify_amount=nullify_amount
         )
 
         self.assert_result_and_request_with_input(
             result=result,
-            method_name='reverseNullification',
-            input_name='wsOneClickMulticodeReverseNullificationInput',
+            method_name="reverseNullification",
+            input_name="wsOneClickMulticodeReverseNullificationInput",
             commerceId=commerce_id,
             nullifyAmount=nullify_amount,
-            buyOrder=buy_order
+            buyOrder=buy_order,
         )
+
 
 class WebpayServiceTest(ServiceTestCase):
 
     service_class = WebpayService
-
