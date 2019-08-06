@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "python-tbk"
+version = "0.2.2-dev2"
+description = "Unofficial TBK Web Services Python SDK"
+authors = ["Cornershop <tech@cornershopapp.com>"]
+license = "MIT"
+packages = [
+    { include = "tbk" }
+]
+readme = "README.rst"
+repository = "https://github.com/cornershop/python-tbk"
+keywords = ["payments", "python", "transbank", "chile"]
+
+[tool.poetry.dependencies]
+python = "~2.7 || ^3.6"
+zeep = ">=3.0.0"
+xmlsec = ">=0.6.1"
+typing = { version = ">=3.6", python = "~2.7"}
+
+[tool.poetry.dev-dependencies]
+mock = { version = "*",  python = "~2.7" }
+requests_mock = "*"
+readme_renderer = "^24.0"
+pytest = "=4.6"
+pytest-cov = "^2.7"
+flask = "^1.1"
+python-dotenv = "^0.10.3"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

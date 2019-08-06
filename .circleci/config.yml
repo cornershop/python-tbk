@@ -1,23 +1,117 @@
 version: 2
 
 jobs:
+  tests-37:
+    docker:
+      - image: circleci/python:3.7
+
+    steps:
+      - checkout
+      - run:
+          command: |-
+            python -V
+            echo "TRIGGERER: ${CIRCLE_USERNAME}"
+            echo "BUILD_NUMBER: ${CIRCLE_BUILD_NUM}"
+            echo "BUILD_URL: ${CIRCLE_BUILD_URL}"
+            echo "BRANCH: ${CIRCLE_BRANCH}"
+            echo "RUNNING JOB: ${CIRCLE_JOB}"
+            echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
+            echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
+      - run: sudo apt-get update -y
+      - run: sudo apt-get install -y libxmlsec1-dev
+      - restore_cache:
+          keys:
+            - deps-{{ checksum "poetry.lock" }}
+      - run: poetry install
+      - save_cache:
+          key: deps-{{ checksum "poetry.lock" }}
+          paths:
+            - /home/circleci/.cache/pypoetry/virtualenvs
+      - run: poetry run pytest --cov=tbk
+
+  tests-38:
+    docker:
+      - image: circleci/python:3.8-rc
+
+    steps:
+      - checkout
+      - run:
+          command: |-
+            python -V
+            echo "TRIGGERER: ${CIRCLE_USERNAME}"
+            echo "BUILD_NUMBER: ${CIRCLE_BUILD_NUM}"
+            echo "BUILD_URL: ${CIRCLE_BUILD_URL}"
+            echo "BRANCH: ${CIRCLE_BRANCH}"
+            echo "RUNNING JOB: ${CIRCLE_JOB}"
+            echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
+            echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
+      - run: sudo apt-get update -y
+      - run: sudo apt-get install -y libxmlsec1-dev
+      - restore_cache:
+          keys:
+            - deps-{{ checksum "poetry.lock" }}
+      - run: poetry install
+      - save_cache:
+          key: deps-{{ checksum "poetry.lock" }}
+          paths:
+            - /home/circleci/.cache/pypoetry/virtualenvs
+      - run: poetry run pytest --cov=tbk
+
   tests-36:
     docker:
       - image: circleci/python:3.6
+
     steps:
       - checkout
-      - run: sudo apt-get update
-      - run: sudo apt-get install libxmlsec1-dev
-      - run: python setup.py nosetests
+      - run:
+          command: |-
+            python -V
+            echo "TRIGGERER: ${CIRCLE_USERNAME}"
+            echo "BUILD_NUMBER: ${CIRCLE_BUILD_NUM}"
+            echo "BUILD_URL: ${CIRCLE_BUILD_URL}"
+            echo "BRANCH: ${CIRCLE_BRANCH}"
+            echo "RUNNING JOB: ${CIRCLE_JOB}"
+            echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
+            echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
+      - run: sudo apt-get update -y
+      - run: sudo apt-get install -y libxmlsec1-dev
+      - restore_cache:
+          keys:
+            - deps-{{ checksum "poetry.lock" }}
+      - run: poetry install
+      - save_cache:
+          key: deps-{{ checksum "poetry.lock" }}
+          paths:
+            - /home/circleci/.cache/pypoetry/virtualenvs
+      - run: poetry run pytest --cov=tbk
 
   tests-27:
     docker:
       - image: circleci/python:2.7
+
     steps:
       - checkout
-      - run: sudo apt-get update
-      - run: sudo apt-get install libxmlsec1-dev
-      - run: python setup.py nosetests
+      - run:
+          command: |-
+            python -V
+            echo "TRIGGERER: ${CIRCLE_USERNAME}"
+            echo "BUILD_NUMBER: ${CIRCLE_BUILD_NUM}"
+            echo "BUILD_URL: ${CIRCLE_BUILD_URL}"
+            echo "BRANCH: ${CIRCLE_BRANCH}"
+            echo "RUNNING JOB: ${CIRCLE_JOB}"
+            echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
+            echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
+      - run: sudo apt-get update -y
+      - run: sudo apt-get install -y libxmlsec1-dev
+      - restore_cache:
+          keys:
+            - deps-{{ checksum "poetry.lock" }}
+      - run: poetry install
+      - save_cache:
+          key: deps-{{ checksum "poetry.lock" }}
+          paths:
+            - /home/circleci/.cache/pypoetry/virtualenvs
+      - run: poetry run pytest --cov=tbk
 
 workflows:
   version: 2
@@ -26,3 +120,5 @@ workflows:
     jobs:
       - tests-27
       - tests-36
+      - tests-37
+      - tests-38
