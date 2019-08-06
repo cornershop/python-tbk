@@ -57,7 +57,7 @@ became::
 Oneclick Mall Service
 =====================
 
-A list of `tbk.services.StoreInput` input is expected as `wsOneClickMulticodeStorePaymentInput` for `stores_input` parameter on `authorize` method.
+A list of :code:`tbk.services.StoreInput` input is expected as :code:`wsOneClickMulticodeStorePaymentInput` for :code:`stores_input` parameter on :code:`authorize` method.
 
 Documentation
 =============
@@ -124,7 +124,7 @@ se traduce en::
 Servicio Oneclick Mall
 ======================
 
-El método `authorize` espera una lista de `tbk.services.StoreInput` en el parámetro `stores_input` que se corresponde con la definición de `wsOneClickMulticodeStorePaymentInput`.
+El método :code:`authorize` espera una lista de :code:`tbk.services.StoreInput` en el parámetro :code:`stores_input` que se corresponde con la definición de :code:`wsOneClickMulticodeStorePaymentInput`.
 
 
 Documentación
