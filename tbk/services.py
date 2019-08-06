@@ -1,6 +1,11 @@
 import logging
+from collections import namedtuple
 
 from .soap import create_soap_requestor
+
+StoreInput = namedtuple(
+    "StoreInput", ["buy_order", "shares_number", "amount", "commerce_id"]
+)
 
 
 class TBKWebService(object):
@@ -265,10 +270,10 @@ class OneClickMulticodeService(TBKWebService):
             "buyOrder": buy_order,
             "storesInput": [
                 {
-                    "buyOrder": store_input["buy_order"],
-                    "sharesNumber": store_input["shares"],
-                    "amount": store_input["amount"],
-                    "commerceId": store_input["commerce_id"],
+                    "buyOrder": store_input.buy_order,
+                    "sharesNumber": store_input.shares_number,
+                    "amount": store_input.amount,
+                    "commerceId": store_input.commerce_id,
                 }
                 for store_input in store_inputs
             ],

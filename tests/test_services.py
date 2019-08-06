@@ -1,7 +1,12 @@
 import unittest
 
 from tbk import Commerce
-from tbk.services import OneClickPaymentService, WebpayService, OneClickMulticodeService
+from tbk.services import (
+    OneClickPaymentService,
+    WebpayService,
+    OneClickMulticodeService,
+    StoreInput,
+)
 from tbk.soap import SoapRequestor
 from .utils import mock
 
@@ -152,12 +157,12 @@ class OneClickMallServiceTest(ServiceTestCase):
         commerce = mock.MagicMock(spec=str)
 
         stores_inputs = [
-            {
-                "buy_order": buy_order,
-                "shares": 1,
-                "amount": amount,
-                "commerce_id": commerce,
-            }
+            StoreInput(
+                buy_order=buy_order,
+                shares_number=1,
+                amount=amount,
+                commerce_id=commerce,
+            )
         ]
 
         result = self.service.authorize(buy_order, tbk_user, username, stores_inputs)
@@ -190,18 +195,18 @@ class OneClickMallServiceTest(ServiceTestCase):
         commerce_2 = mock.MagicMock(spec=str)
 
         stores_inputs = [
-            {
-                "buy_order": buy_order,
-                "shares": 1,
-                "amount": amount,
-                "commerce_id": commerce,
-            },
-            {
-                "buy_order": buy_order_2,
-                "shares": 3,
-                "amount": amount_2,
-                "commerce_id": commerce_2,
-            },
+            StoreInput(
+                buy_order=buy_order,
+                shares_number=1,
+                amount=amount,
+                commerce_id=commerce,
+            ),
+            StoreInput(
+                buy_order=buy_order_2,
+                shares_number=3,
+                amount=amount_2,
+                commerce_id=commerce_2,
+            ),
         ]
 
         result = self.service.authorize(buy_order, tbk_user, username, stores_inputs)
