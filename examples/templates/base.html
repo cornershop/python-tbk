@@ -55,6 +55,10 @@
     figure {
       margin: 2em 0;
     }
+    #messages {
+      background-color: lightcoral;
+      padding: 1em;
+    }
   </style>
   {% endblock style %}
 </head>
@@ -68,6 +72,21 @@
 
 {% block header %}
 {% endblock header %}
+
+{% block messages %}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<h2>Messages</h2>
+<div id="messages">
+  <ul>
+  {% for message in messages %}
+  <li>{{ message }}</li>
+  {% endfor %}
+  </ul>
+</div>
+{% endif %}
+{% endwith %}
+{% endblock %}
 
 {% block content %}
 <ul>

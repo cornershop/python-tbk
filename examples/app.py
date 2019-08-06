@@ -6,6 +6,7 @@ import random
 import flask
 
 import tbk
+from tbk.soap.exceptions import SoapServerException, SoapRequestException
 
 CERTIFICATES_DIR = os.path.join(os.path.dirname(__file__), "commerces")
 
@@ -35,10 +36,9 @@ app.secret_key = "TBKSESSION"
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 logging.getLogger("tbk").setLevel(logging.DEBUG)
-logging.getLogger("suds.transport.http").setLevel(logging.DEBUG)
 
 HOST = os.getenv("HOST", "http://localhost")
-PORT = os.getenv("PORT")
+PORT = os.getenv("PORT", 5000)
 BASE_URL = "{host}:{port}".format(host=HOST, port=PORT)
 
 NORMAL_COMMERCE_CODE = "597020000541"
@@ -130,11 +130,18 @@ def oneclick_index():
 
 @app.route("/oneclick/init", methods=["POST"])
 def oneclick_init_inscription():
-    inscription = oneclick_service.init_inscription(
-        username=flask.request.form["username"],
-        email=flask.request.form["email"],
-        response_url=BASE_URL + "/oneclick/return",
-    )
+    try:
+        inscription = oneclick_service.init_inscription(
+            username=flask.request.form["username"],
+            email=flask.request.form["email"],
+            response_url=BASE_URL + "/oneclick/return",
+        )
+    except SoapServerException as err:
+        flask.flash(err.error)
+        return flask.redirect("/oneclick/")
+    except SoapRequestException as err:
+        print(err.error, err.request)
+        return flask.redirect("/oneclick/")
     return flask.render_template("oneclick/init.html", inscription=inscription)
 
 
