@@ -1,15 +1,17 @@
 [tool.poetry]
 name = "python-tbk"
-version = "0.2.2-dev2"
+version = "0.2.2"
 description = "Unofficial TBK Web Services Python SDK"
-authors = ["Cornershop <tech@cornershopapp.com>"]
 license = "MIT"
+authors = ["Cornershop <tech@cornershopapp.com>"]
+readme = "README.rst"
+homepage = "https://github.com/cornershop/python-tbk"
+repository = "https://github.com/cornershop/python-tbk"
+keywords = ["payments", "python", "transbank", "chile"]
 packages = [
     { include = "tbk" }
 ]
-readme = "README.rst"
-repository = "https://github.com/cornershop/python-tbk"
-keywords = ["payments", "python", "transbank", "chile"]
+include = ["LICENSE.txt", "README.rst"]
 
 [tool.poetry.dependencies]
 python = "~2.7 || ^3.6"
