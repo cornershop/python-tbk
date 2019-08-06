@@ -165,4 +165,3 @@ Se encuentran definidos dos niveles de logger::
 El logger específico de un servicio está definido por su nombre de clase::
 
     tbk.services.WebpayService
-

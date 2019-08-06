@@ -3,6 +3,7 @@ import unittest
 
 import requests_mock
 import zeep.exceptions
+from requests import RequestException
 
 from tbk.soap.requestor import SoapRequest
 from tbk.soap.soap_client import SoapClient
@@ -11,6 +12,7 @@ from tbk.soap.exceptions import (
     TypeDoesNotExist,
     SoapServerException,
     MethodDoesNotExist,
+    SoapRequestException,
 )
 from tbk.soap.utils import load_key_from_data
 from tbk.soap.wsse import sign_envelope, verify_envelope
@@ -100,6 +102,19 @@ class ZeepClientTest(unittest.TestCase):
             self.zeep_client.request(request)
         self.assertEqual(context.exception.error, "Invalid amount")
         self.assertEqual(context.exception.code, 304)
+
+    def test_request_error(self, __):
+        method = mock.Mock()
+        method_name = "methodName"
+        setattr(self.zeep_client.client.service, method_name, method)
+
+        request = self.create_soap_request(method_name)
+        error = Exception()
+        method.side_effect = RequestException(error, request=request)
+        with self.assertRaises(SoapRequestException) as context:
+            self.zeep_client.request(request)
+            self.assertEqual(context.exception.request, request)
+            self.assertEqual(context.exception.error, error)
 
     def test_request_verified(self, requests):
         expected_response = get_fixture_data(

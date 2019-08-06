@@ -57,7 +57,6 @@ normal_commerce = tbk.commerce.Commerce(
 )
 webpay_service = tbk.services.WebpayService(normal_commerce)
 
-
 oneclick_commerce_data = load_commerce_data(ONECLICK_COMMERCE_CODE)
 oneclick_commerce = tbk.commerce.Commerce(
     commerce_code=ONECLICK_COMMERCE_CODE,
@@ -75,7 +74,6 @@ oneclick_mall_commerce = tbk.commerce.Commerce(
     tbk_cert_data=oneclick_mall_commerce_data["tbk_cert_data"],
     environment=tbk.environments.DEVELOPMENT,
 )
-
 
 oneclick_service = tbk.services.OneClickPaymentService(oneclick_commerce)
 oneclick_commerce_service = tbk.services.CommerceIntegrationService(oneclick_commerce)

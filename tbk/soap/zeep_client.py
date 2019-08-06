@@ -3,6 +3,7 @@ import zeep.plugins
 import zeep.helpers
 import zeep.exceptions
 import zeep.transports
+from requests import RequestException
 
 from .soap_client import SoapClient
 from .wsse import sign_envelope, verify_envelope
@@ -11,6 +12,7 @@ from .exceptions import (
     SoapServerException,
     MethodDoesNotExist,
     TypeDoesNotExist,
+    SoapRequestException,
 )
 from .utils import load_key_from_data, parse_tbk_error_message, xml_to_string
 
@@ -59,6 +61,9 @@ class ZeepSoapClient(SoapClient):
             self.logger.exception("Fault")
             error, code = parse_tbk_error_message(fault.message)
             raise SoapServerException(error, code, request)
+        except RequestException as error:
+            self.logger.exception("Request exception")
+            raise SoapRequestException(error, request)
         else:
             serialized = zeep.helpers.serialize_object(result)
             last_sent = self.get_last_sent_envelope()
