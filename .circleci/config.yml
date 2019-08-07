@@ -1,117 +1,56 @@
 version: 2
 
+references:
+  test-steps: &test-steps
+    steps:
+      - checkout
+      - run:
+          command:
+            echo 'export PYTHON_VERSION=`python -c "import platform; print(platform.python_version())"`' >> $BASH_ENV
+      - run:
+          command: |-
+            echo "PYTHON_VERSION: ${PYTHON_VERSION}"
+            echo "TRIGGERER: ${CIRCLE_USERNAME}"
+            echo "BUILD_NUMBER: ${CIRCLE_BUILD_NUM}"
+            echo "BUILD_URL: ${CIRCLE_BUILD_URL}"
+            echo "BRANCH: ${CIRCLE_BRANCH}"
+            echo "RUNNING JOB: ${CIRCLE_JOB}"
+            echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
+            echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
+      - run: sudo apt-get update -y
+      - run: sudo apt-get install -y libxmlsec1-dev
+      - restore_cache:
+          keys:
+            - deps-{{ checksum "poetry.lock" }}-${PYTHON_VERSION}
+      - run: poetry install
+      - save_cache:
+          key: deps-{{ checksum "poetry.lock" }}-${PYTHON_VERSION}
+          paths:
+            - /home/circleci/.cache/pypoetry/virtualenvs
+      - run: poetry run pytest --cov=tbk
+
+
 jobs:
   tests-37:
     docker:
       - image: circleci/python:3.7
+    <<: *test-steps
 
-    steps:
-      - checkout
-      - run:
-          command: |-
-            python -V
-            echo "TRIGGERER: ${CIRCLE_USERNAME}"
-            echo "BUILD_NUMBER: ${CIRCLE_BUILD_NUM}"
-            echo "BUILD_URL: ${CIRCLE_BUILD_URL}"
-            echo "BRANCH: ${CIRCLE_BRANCH}"
-            echo "RUNNING JOB: ${CIRCLE_JOB}"
-            echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
-            echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
-      - run: sudo apt-get update -y
-      - run: sudo apt-get install -y libxmlsec1-dev
-      - restore_cache:
-          keys:
-            - deps-{{ checksum "poetry.lock" }}
-      - run: poetry install
-      - save_cache:
-          key: deps-{{ checksum "poetry.lock" }}
-          paths:
-            - /home/circleci/.cache/pypoetry/virtualenvs
-      - run: poetry run pytest --cov=tbk
 
   tests-38:
     docker:
       - image: circleci/python:3.8-rc
-
-    steps:
-      - checkout
-      - run:
-          command: |-
-            python -V
-            echo "TRIGGERER: ${CIRCLE_USERNAME}"
-            echo "BUILD_NUMBER: ${CIRCLE_BUILD_NUM}"
-            echo "BUILD_URL: ${CIRCLE_BUILD_URL}"
-            echo "BRANCH: ${CIRCLE_BRANCH}"
-            echo "RUNNING JOB: ${CIRCLE_JOB}"
-            echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
-            echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
-      - run: sudo apt-get update -y
-      - run: sudo apt-get install -y libxmlsec1-dev
-      - restore_cache:
-          keys:
-            - deps-{{ checksum "poetry.lock" }}
-      - run: poetry install
-      - save_cache:
-          key: deps-{{ checksum "poetry.lock" }}
-          paths:
-            - /home/circleci/.cache/pypoetry/virtualenvs
-      - run: poetry run pytest --cov=tbk
+    <<: *test-steps
 
   tests-36:
     docker:
       - image: circleci/python:3.6
-
-    steps:
-      - checkout
-      - run:
-          command: |-
-            python -V
-            echo "TRIGGERER: ${CIRCLE_USERNAME}"
-            echo "BUILD_NUMBER: ${CIRCLE_BUILD_NUM}"
-            echo "BUILD_URL: ${CIRCLE_BUILD_URL}"
-            echo "BRANCH: ${CIRCLE_BRANCH}"
-            echo "RUNNING JOB: ${CIRCLE_JOB}"
-            echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
-            echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
-      - run: sudo apt-get update -y
-      - run: sudo apt-get install -y libxmlsec1-dev
-      - restore_cache:
-          keys:
-            - deps-{{ checksum "poetry.lock" }}
-      - run: poetry install
-      - save_cache:
-          key: deps-{{ checksum "poetry.lock" }}
-          paths:
-            - /home/circleci/.cache/pypoetry/virtualenvs
-      - run: poetry run pytest --cov=tbk
+    <<: *test-steps
 
   tests-27:
     docker:
       - image: circleci/python:2.7
-
-    steps:
-      - checkout
-      - run:
-          command: |-
-            python -V
-            echo "TRIGGERER: ${CIRCLE_USERNAME}"
-            echo "BUILD_NUMBER: ${CIRCLE_BUILD_NUM}"
-            echo "BUILD_URL: ${CIRCLE_BUILD_URL}"
-            echo "BRANCH: ${CIRCLE_BRANCH}"
-            echo "RUNNING JOB: ${CIRCLE_JOB}"
-            echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
-            echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
-      - run: sudo apt-get update -y
-      - run: sudo apt-get install -y libxmlsec1-dev
-      - restore_cache:
-          keys:
-            - deps-{{ checksum "poetry.lock" }}
-      - run: poetry install
-      - save_cache:
-          key: deps-{{ checksum "poetry.lock" }}
-          paths:
-            - /home/circleci/.cache/pypoetry/virtualenvs
-      - run: poetry run pytest --cov=tbk
+    <<: *test-steps
 
 workflows:
   version: 2
