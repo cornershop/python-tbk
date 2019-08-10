@@ -21,7 +21,7 @@ references:
       - run: sudo apt-get install -y libxmlsec1-dev
       - restore_cache:
           keys:
-            - deps-{{ checksum "poetry.lock" }}-{{ .Environment.PYTHON-VERSION }}
+            - deps-{{ checksum "poetry.lock" }}-{{ .Environment.PYTHON_VERSION }}
       - run: poetry install
       - save_cache:
           key: deps-{{ checksum "poetry.lock" }}-{{ .Environment.PYTHON_VERSION }}
