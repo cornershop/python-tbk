@@ -5,20 +5,8 @@ references:
     steps:
       - checkout
       - run:
-          command:
-            echo 'export PYTHON_VERSION=`python -c "import platform; print(platform.python_version())"`' >> $BASH_ENV
-      - run:
-          command: |-
-            echo "PYTHON_VERSION: ${PYTHON_VERSION}"
-            echo "TRIGGERER: ${CIRCLE_USERNAME}"
-            echo "BUILD_NUMBER: ${CIRCLE_BUILD_NUM}"
-            echo "BUILD_URL: ${CIRCLE_BUILD_URL}"
-            echo "BRANCH: ${CIRCLE_BRANCH}"
-            echo "RUNNING JOB: ${CIRCLE_JOB}"
-            echo "JOB PARALLELISM: ${CIRCLE_NODE_TOTAL}"
-            echo "CIRCLE_REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}"
-      - run: sudo apt-get update -y
-      - run: sudo apt-get install -y libxmlsec1-dev
+          name: libxmlsec1 dependency
+          command: sudo apt-get update -y && sudo apt-get install -y libxmlsec1-dev
       - restore_cache:
           keys:
             - deps-{{ checksum "poetry.lock" }}
@@ -27,7 +15,7 @@ references:
           key: deps-{{ checksum "poetry.lock" }}
           paths:
             - /home/circleci/.cache/pypoetry/virtualenvs
-      - run: poetry run pytest --cov=tbk
+      - run: poetry run pytest --black --cov=tbk
 
 
 jobs:
@@ -52,6 +40,44 @@ jobs:
       - image: circleci/python:2.7
     <<: *test-steps
 
+  build:
+    docker:
+      - image: circleci/python:3.7
+    steps:
+      - checkout
+      - run: pip install --user toml
+      - run: ls
+      - run: poetry build -f wheel
+      - persist_to_workspace:
+          root: ~/
+          paths: dist
+
+  pipinstall-py27:
+    docker:
+      - image: circleci/python:2.7
+    steps:
+      - run:
+          name: libxmlsec1 dependency
+          command: sudo apt-get update -y && sudo apt-get install -y libxmlsec1-dev
+      - attach_workspace:
+          at: ~/
+      - run: pip install dist/*.whl
+      - run: python -c "import tbk; print(tbk.__version__)"
+
+  pipinstall-py37:
+    docker:
+      - image: circleci/python:3.7
+    steps:
+      - run:
+          name: libxmlsec1 dependency
+          command: sudo apt-get update -y && sudo apt-get install -y libxmlsec1-dev
+      - attach_workspace:
+          at: ~/
+      - run: ls dist
+      - run: pip install dist/*.whl
+      - run: python -c "import tbk; print(tbk.__version__)"
+
+
 workflows:
   version: 2
 
@@ -61,3 +87,12 @@ workflows:
       - tests-36
       - tests-37
       - tests-38
+  build:
+    jobs:
+      - build
+      - pipinstall-py27:
+          requires:
+            - build
+      - pipinstall-py37:
+          requires:
+            - build
