@@ -49,8 +49,8 @@ jobs:
       - run: ls
       - run: poetry build -f wheel
       - persist_to_workspace:
-          root: ~/
-          paths: dist
+          root: .
+          paths: dist/
 
   pipinstall-py27:
     docker:
@@ -60,7 +60,7 @@ jobs:
           name: libxmlsec1 dependency
           command: sudo apt-get update -y && sudo apt-get install -y libxmlsec1-dev
       - attach_workspace:
-          at: ~/
+          at: .
       - run: pip install dist/*.whl
       - run: python -c "import tbk; print(tbk.__version__)"
 
