@@ -16,6 +16,7 @@ references:
           paths:
             - /home/circleci/.cache/pypoetry/virtualenvs
       - run: poetry run pytest --black --cov=tbk
+  
 
 
 jobs:
@@ -61,7 +62,7 @@ jobs:
           command: sudo apt-get update -y && sudo apt-get install -y libxmlsec1-dev
       - attach_workspace:
           at: .
-      - run: pip install dist/*.whl
+      - run: pip install --user --no-cache-dir dist/*.whl
       - run: python -c "import tbk; print(tbk.__version__)"
 
   pipinstall-py37:
@@ -72,9 +73,8 @@ jobs:
           name: libxmlsec1 dependency
           command: sudo apt-get update -y && sudo apt-get install -y libxmlsec1-dev
       - attach_workspace:
-          at: ~/
-      - run: ls dist
-      - run: pip install dist/*.whl
+          at: .
+      - run: pip install --user --no-cache-dir dist/*.whl
       - run: python -c "import tbk; print(tbk.__version__)"
 
 
