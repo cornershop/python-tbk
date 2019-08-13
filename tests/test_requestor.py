@@ -1,5 +1,3 @@
-import unittest
-
 import pytest
 
 from tbk.commerce import Commerce
@@ -17,15 +15,6 @@ from .utils import mock
 @pytest.fixture
 def soap_client():
     return mock.MagicMock(spec=SoapClient)
-
-
-def assert_responses(first, second, msg=None):
-    assert first.result == second.result, msg
-    assert first.envelope_sent == second.envelope_sent, msg
-    assert first.envelope_received == second.envelope_received, msg
-    assert first.request.method_name == second.request.method_name, msg
-    assert first.request.args == second.request.args, msg
-    assert first.request.kwargs == second.request.kwargs, msg
 
 
 @pytest.mark.parametrize(

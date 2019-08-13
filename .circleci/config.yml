@@ -15,8 +15,19 @@ references:
           key: deps-{{ checksum "poetry.lock" }}
           paths:
             - /home/circleci/.cache/pypoetry/virtualenvs
-      - run: poetry run pytest --black --cov=tbk
-  
+      - run: poetry run pytest --black --flake --cov=tbk
+
+  install-wheel: &install-wheel
+    steps:
+      - run:
+          name: libxmlsec1 dependency
+          command: sudo apt-get update -y && sudo apt-get install -y libxmlsec1-dev
+      - attach_workspace:
+          at: .
+      - run: pip install --user --no-cache-dir dist/*.whl
+      - run:
+          name: Check installed version
+          command: python -c "import tbk; print(tbk.__version__)"
 
 
 jobs:
@@ -47,35 +58,20 @@ jobs:
     steps:
       - checkout
       - run: pip install --user toml
-      - run: ls
       - run: poetry build -f wheel
       - persist_to_workspace:
           root: .
           paths: dist/
 
-  pipinstall-py27:
+  install-wheel-py27:
     docker:
       - image: circleci/python:2.7
-    steps:
-      - run:
-          name: libxmlsec1 dependency
-          command: sudo apt-get update -y && sudo apt-get install -y libxmlsec1-dev
-      - attach_workspace:
-          at: .
-      - run: pip install --user --no-cache-dir dist/*.whl
-      - run: python -c "import tbk; print(tbk.__version__)"
+    <<: *install-wheel
 
-  pipinstall-py37:
+  install-wheel-py37:
     docker:
       - image: circleci/python:3.7
-    steps:
-      - run:
-          name: libxmlsec1 dependency
-          command: sudo apt-get update -y && sudo apt-get install -y libxmlsec1-dev
-      - attach_workspace:
-          at: .
-      - run: pip install --user --no-cache-dir dist/*.whl
-      - run: python -c "import tbk; print(tbk.__version__)"
+    <<: *install-wheel
 
 
 workflows:
@@ -90,9 +86,9 @@ workflows:
   build:
     jobs:
       - build
-      - pipinstall-py27:
+      - install-wheel-py27:
           requires:
             - build
-      - pipinstall-py37:
+      - install-wheel-py37:
           requires:
             - build
