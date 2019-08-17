@@ -322,7 +322,7 @@ def test_request_sent_received_data(mock, requests_mock, fixture_data, zeep_clie
             result, last_sent, last_received = zeep_client.request(request)
 
         method.assert_called_once_with("token")
-        assert expected_response == last_received
+        assert expected_response.strip() == last_received
 
         first = etree.tostring(
             etree.fromstring(requests_mock.last_request.text.encode())
