@@ -1,20 +1,11 @@
 import pytest
 
-from tbk.commerce import Commerce
 from tbk.soap import SoapRequestor, SoapRequest, SoapResponse, create_soap_requestor
 from tbk.soap.exceptions import (
     SoapClientException,
     SoapServerException,
     SoapRequestException,
 )
-from tbk.soap.soap_client import SoapClient
-
-from .utils import mock
-
-
-@pytest.fixture
-def soap_client():
-    return mock.MagicMock(spec=SoapClient)
 
 
 @pytest.mark.parametrize(
@@ -26,7 +17,7 @@ def test_get_enum_value(soap_client, enum_type, value):
 
     result = requestor.get_enum_value(enum_type, value)
 
-    assert soap_client.get_enum_value.return_value == result
+    assert soap_client.get_enum_value.return_value is result
 
 
 @pytest.mark.parametrize(
@@ -81,7 +72,7 @@ def test_create_object_exception(soap_client, type_name, args, kwargs):
         ("methodThree", ("arg1", True, 1), {"a": "arg", "b": True, "c": 1}),
     ),
 )
-def test_request(soap_client, method_name, args, kwargs):
+def test_request(mock, soap_client, method_name, args, kwargs):
     mocked_result = mock.Mock()
     mocked_envelope_sent = mock.Mock()
     mocked_envelope_received = mock.Mock()
@@ -118,7 +109,9 @@ def test_request(soap_client, method_name, args, kwargs):
         ("methodThree", ("arg1", True), {"a": "kwarg", "c": 1}, "error3", 3),
     ),
 )
-def test_request_server_exception(soap_client, method_name, args, kwargs, error, code):
+def test_request_server_exception(
+    mock, soap_client, method_name, args, kwargs, error, code
+):
     request = mock.Mock(spec=SoapRequest)
     soap_client.request.side_effect = SoapServerException(error, code, request)
     requestor = SoapRequestor(soap_client)
@@ -140,7 +133,7 @@ def test_request_server_exception(soap_client, method_name, args, kwargs, error,
         ("methodThree", ("arg1", True, 1), {"a": "arg", "b": True, "c": 1}),
     ),
 )
-def test_request_exception(soap_client, method_name, args, kwargs):
+def test_request_exception(mock, soap_client, method_name, args, kwargs):
     error = Exception()
     request = mock.Mock(spec=SoapRequest)
     soap_client.request.side_effect = SoapRequestException(error, request)
@@ -157,7 +150,7 @@ def test_request_exception(soap_client, method_name, args, kwargs):
 @pytest.mark.parametrize(
     ("result"), ({"a": 1, "b": "b", "key": True}, {"a": 1, "b": b"abc"})
 )
-def test_response_object_getitem(result):
+def test_response_object_getitem(mock, result):
     request = mock.Mock(spec=SoapRequest)
     response = SoapResponse(
         request=request, result=result, envelope_received=None, envelope_sent=None
@@ -166,42 +159,33 @@ def test_response_object_getitem(result):
         assert response[key] is value
 
 
-@pytest.fixture
-def commerce():
-    return Commerce(
-        commerce_code="commerce_code",
-        key_data="key_data",
-        cert_data="cert_data",
-        tbk_cert_data="tbk_cert_data",
-        environment="environment",
-    )
-
-
-def test_create_default_soap_requestor(commerce):
+def test_create_default_soap_requestor(mock, default_commerce):
     wsdl_url = mock.MagicMock(spec=str)
     with mock.patch("tbk.soap.default_client_class", spec=type) as client_class:
-        requestor = create_soap_requestor(wsdl_url, commerce)
+        requestor = create_soap_requestor(wsdl_url, default_commerce)
         client_class.assert_called_once_with(
             wsdl_url=wsdl_url,
-            key_data=commerce.key_data,
-            cert_data=commerce.cert_data,
-            tbk_cert_data=commerce.tbk_cert_data,
-            password=commerce.key_password,
+            key_data=default_commerce.key_data,
+            cert_data=default_commerce.cert_data,
+            tbk_cert_data=default_commerce.tbk_cert_data,
+            password=default_commerce.key_password,
         )
         assert isinstance(requestor, SoapRequestor)
         assert client_class.return_value is requestor.soap_client
 
 
-def test_create_soap_requestor_with_custom_class(commerce):
+def test_create_soap_requestor_with_custom_class(mock, default_commerce):
     client_class = mock.MagicMock(spec=type)
     wsdl_url = mock.MagicMock(spec=str)
-    requestor = create_soap_requestor(wsdl_url, commerce, client_class=client_class)
+    requestor = create_soap_requestor(
+        wsdl_url, default_commerce, client_class=client_class
+    )
     client_class.assert_called_once_with(
         wsdl_url=wsdl_url,
-        key_data=commerce.key_data,
-        cert_data=commerce.cert_data,
-        tbk_cert_data=commerce.tbk_cert_data,
-        password=commerce.key_password,
+        key_data=default_commerce.key_data,
+        cert_data=default_commerce.cert_data,
+        tbk_cert_data=default_commerce.tbk_cert_data,
+        password=default_commerce.key_password,
     )
     assert isinstance(requestor, SoapRequestor)
     assert client_class.return_value is requestor.soap_client

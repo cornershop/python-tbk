@@ -1,9 +1,13 @@
 import unittest
 
 from tbk.commerce import Commerce
-from tbk.services import OneClickPaymentService, WebpayService
+from tbk.services import OneClickPaymentService
 from tbk.soap.requestor import SoapRequestor
-from .utils import mock
+
+try:
+    from unittest import mock  # noqa
+except ImportError:
+    import mock  # noqa
 
 
 class ServiceTestCase(unittest.TestCase):
@@ -108,8 +112,3 @@ class OneClickPaymentServiceTest(ServiceTestCase):
             tbkUser=tbk_user,
             username=username,
         )
-
-
-class WebpayServiceTest(ServiceTestCase):
-
-    service_class = WebpayService
