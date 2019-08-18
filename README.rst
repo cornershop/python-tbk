@@ -37,7 +37,7 @@ As simple as call (snakecased) webpay api methods::
     >>> from tbk import INTEGRACION
     >>> commerce = Commerce(commerce_code, key_data, cert_data, tbk_cert_data, INTEGRACION)
     >>> webpay = WebpayService(commerce)
-    >>> transaction = webpay.init_transaction(amount, buy_order, return_url, final_url)
+    >>> transaction = webpay.init_transaction_normal(amount, buy_order, return_url, final_url)
     >>> print(transaction['token'])
     e87df74f7af4dcfdc1d17521b07413ff9a004a7b423dc47ad09f6a8166a73842
 
@@ -47,11 +47,11 @@ Conventions
 
 This library use a snake cased naming convention for webservices and params for a more pythonic implementation. Every camelcased name in the webpay API was transformed to snakecase::
 
-    initTransaction(amount, buyOrder, returnURL, finalURL, sessionId)
+    initTransactionNormal(amount, buyOrder, returnURL, finalURL, sessionId)
 
 became::
 
-    init_transaction(amount, buy_order, return_url, final_url, session_id)
+    init_transaction_normal(amount, buy_order, return_url, final_url, session_id)
 
 
 Documentation
@@ -99,7 +99,7 @@ Tan simple como llamar los métodos del API de Webpay (pero snakecased)::
     >>> from tbk import INTEGRACION
     >>> commerce = Commerce(commerce_code, key_data, cert_data, tbk_cert_data, INTEGRACION)
     >>> webpay = WebpayService(commerce)
-    >>> transaction = webpay.init_transaction(amount, buy_order, return_url, final_url)
+    >>> transaction = webpay.init_transaction_normal(amount, buy_order, return_url, final_url)
     >>> print(transaction['token'])
     e87df74f7af4dcfdc1d17521b07413ff9a004a7b423dc47ad09f6a8166a73842
 
@@ -109,11 +109,11 @@ Convenciones
 
 La librería usa una convención de nombres snakecased para ser más pythonica. Cada nombre camelcased en el API de Webpay se transformó a snakecased::
 
-    initTransaction(amount, buyOrder, returnURL, finalURL, sessionId)
+    initTransactionNormal(amount, buyOrder, returnURL, finalURL, sessionId)
 
 se traduce en::
 
-    init_transaction(amount, buy_order, return_url, final_url, session_id)
+    init_transaction_normal(amount, buy_order, return_url, final_url, session_id)
 
 
 Documentación
