@@ -1,4 +1,5 @@
 import logging
+from collections import namedtuple
 
 from .soap import create_soap_requestor
 
@@ -87,11 +88,23 @@ class WebpayService(TBKWebService):
         "https://webpay3g.transbank.cl/WSWebpayTransaction/cxf/WSWebpayService?wsdl"
     )
 
+    TransactionDetail = namedtuple(
+        "TransactionDetail", ["commerce_code", "amount", "buy_order"]
+    )
+    TYPE_NORMAL = "TR_NORMAL_WS"
+    TYPE_MALL = "TR_MALL_WS"
+
     def init_transaction(
-        self, amount, buy_order, return_url, final_url, session_id=None
+        self,
+        transaction_type,
+        details,
+        buy_order,
+        return_url,
+        final_url,
+        session_id=None,
     ):
         transaction_type = self.soap_requestor.get_enum_value(
-            "wsTransactionType", "TR_NORMAL_WS"
+            "wsTransactionType", transaction_type
         )
         arguments = {
             "wSTransactionType": transaction_type,
@@ -103,16 +116,35 @@ class WebpayService(TBKWebService):
             "transactionDetails": [
                 self.soap_requestor.create_object(
                     "wsTransactionDetail",
-                    amount=amount,
-                    commerceCode=self.commerce.commerce_code,
-                    buyOrder=buy_order,
+                    amount=detail.amount,
+                    commerceCode=detail.commerce_code,
+                    buyOrder=detail.buy_order,
                 )
+                for detail in details
             ],
         }
         init_transaction_input = self.soap_requestor.create_object(
             "wsInitTransactionInput", **arguments
         )
         return self.soap_requestor.request("initTransaction", init_transaction_input)
+
+    def init_transaction_normal(
+        self, amount, buy_order, return_url, final_url, session_id=None
+    ):
+        return self.init_transaction(
+            transaction_type=self.TYPE_NORMAL,
+            details=[
+                self.TransactionDetail(
+                    amount=amount,
+                    commerce_code=self.commerce.commerce_code,
+                    buy_order=buy_order,
+                )
+            ],
+            buy_order=buy_order,
+            return_url=return_url,
+            final_url=final_url,
+            session_id=session_id,
+        )
 
     def get_transaction_result(self, token):
         return self.soap_requestor.request("getTransactionResult", token)
