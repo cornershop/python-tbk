@@ -1,4 +1,5 @@
 import logging
+from collections import namedtuple
 
 from .soap import create_soap_requestor
 
@@ -233,3 +234,82 @@ class CompleteWebpayService(TBKWebService):
 
     def acknowledge_transaction(self, token):
         return self.soap_requestor.request("acknowledgeTransaction", token)
+
+
+class OneClickMulticodeService(TBKWebService):
+    WSDL_DEVELOPMENT = "https://webpay3gint.transbank.cl/WSWebpayTransaction/cxf/WSOneClickMulticodeService?wsdl"
+    WSDL_CERTIFICATION = "https://webpay3gint.transbank.cl/WSWebpayTransaction/cxf/WSOneClickMulticodeService?wsdl"
+    WSDL_PRODUCTION = "https://webpay3g.transbank.cl/WSWebpayTransaction/cxf/WSOneClickMulticodeService?wsdl"
+
+    StoreInput = namedtuple(
+        "StoreInput", ["commerce_id", "buy_order", "amount", "shares_number"]
+    )
+
+    def init_inscription(self, username, email, return_url):
+        return self.soap_requestor.request(
+            "initInscription", username=username, email=email, returnURL=return_url
+        )
+
+    def finish_inscription(self, token):
+        return self.soap_requestor.request("finishInscription", token=token)
+
+    def authorize(self, buy_order, tbk_user, username, stores_input):
+        stores_input = [
+            self.soap_requestor.create_object(
+                "wsOneClickMulticodeStorePaymentInput",
+                commerceId=store_input.commerce_id,
+                buyOrder=store_input.buy_order,
+                amount=store_input.amount,
+                sharesNumber=store_input.shares_number,
+            )
+            for store_input in stores_input
+        ]
+        return self.soap_requestor.request(
+            "authorize",
+            buyOrder=buy_order,
+            tbkUser=tbk_user,
+            username=username,
+            storesInput=stores_input,
+        )
+
+    def reverse(self, buy_order):
+        return self.soap_requestor.request("reverse", buyOrder=buy_order)
+
+    def nullify(
+        self,
+        commerce_id,
+        buy_order,
+        authorized_amount,
+        authorization_code,
+        nullify_amount,
+    ):
+        return self.soap_requestor.request(
+            "nullify",
+            commerceId=commerce_id,
+            buyOrder=buy_order,
+            authorizedAmount=authorized_amount,
+            authorizationCode=authorization_code,
+            nullifyAmount=nullify_amount,
+        )
+
+    def reverse_nullification(self, buy_order, commerce_id, nullify_amount):
+        return self.soap_requestor.request(
+            "reverseNullification",
+            buyOrder=buy_order,
+            commerceId=commerce_id,
+            nullifyAmount=nullify_amount,
+        )
+
+    def remove_inscription(self, tbk_user, username):
+        return self.soap_requestor.request(
+            "removeInscription", tbkUser=tbk_user, username=username
+        )
+
+    def capture(self, authorization_code, buy_order, commerce_id, captured_amount):
+        return self.soap_requestor.request(
+            "capture",
+            authorizationCode=authorization_code,
+            buyOrder=buy_order,
+            commerceID=commerce_id,
+            capturedAmount=captured_amount,
+        )
