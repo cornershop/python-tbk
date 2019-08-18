@@ -5,6 +5,7 @@ from lxml import etree
 
 from tbk.commerce import Commerce
 from tbk.environments import DEVELOPMENT
+from tbk.soap import SoapRequestor
 from tbk.soap.soap_client import SoapClient
 
 
@@ -83,3 +84,8 @@ def soap_client(mock):
         mock.MagicMock(spec=str),
     )
     return mocker_client
+
+
+@pytest.fixture()
+def soap_requestor(mock, soap_client):
+    return mock.MagicMock(spec=SoapRequestor)
