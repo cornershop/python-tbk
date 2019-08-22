@@ -5,6 +5,7 @@ import random
 
 import flask
 import tbk
+from tbk.services import StoreInput
 from tbk.soap.exceptions import SoapServerException, SoapRequestException
 
 CERTIFICATES_DIR = os.path.join(os.path.dirname(__file__), "commerces")
@@ -45,6 +46,9 @@ ONECLICK_COMMERCE_CODE = "597044444405"
 ONECLICK_MALL_CODE = "597044444429"
 ONECLICK_MALL_COMMERCE_1 = "597044444430"
 ONECLICK_MALL_COMMERCE_2 = "597044444431"
+ONECLICK_MALL_CODE = "597044444436"
+ONECLICK_MALL_COMMERCE_1 = "597044444437"
+ONECLICK_MALL_COMMERCE_2 = "597044444438"
 
 
 normal_commerce_data = load_commerce_data(NORMAL_COMMERCE_CODE)
@@ -240,6 +244,7 @@ def mall_return_from_webpay():
     buy_order_2 = int(
         datetime.utcnow().strftime("%Y%m%d%H%M%S")
     ) * 1000 + random.randint(1000, 9999)
+
     return flask.render_template(
         "mall/return.html",
         transaction=transaction,
@@ -264,18 +269,18 @@ def mall_authorize():
     shares_2 = flask.request.form["shares_2"]
 
     store_inputs = [
-        {
-            "buy_order": buy_order_1,
-            "amount": amount_1,
-            "shares": shares_1,
-            "commerce_id": ONECLICK_MALL_COMMERCE_1,
-        },
-        {
-            "buy_order": buy_order_2,
-            "amount": amount_2,
-            "shares": shares_2,
-            "commerce_id": ONECLICK_MALL_COMMERCE_2,
-        },
+        StoreInput(
+            buy_order=buy_order_1,
+            amount=amount_1,
+            shares_number=shares_1,
+            commerce_id=ONECLICK_MALL_COMMERCE_1,
+        ),
+        StoreInput(
+            buy_order=buy_order_2,
+            amount=amount_2,
+            shares_number=shares_2,
+            commerce_id=ONECLICK_MALL_COMMERCE_2,
+        )
     ]
 
     transaction = oneclick_mall_service.authorize(
@@ -284,6 +289,7 @@ def mall_authorize():
         tbk_user=tbk_user,
         store_inputs=store_inputs,
     )
+
     return flask.render_template(
         "mall/authorized.html",
         transaction=transaction,
