@@ -1,10 +1,10 @@
 import pytest
 
-from tbk.soap import SoapRequestor, SoapRequest, SoapResponse, create_soap_requestor
+from tbk.soap import SoapRequest, SoapRequestor, SoapResponse, create_soap_requestor
 from tbk.soap.exceptions import (
     SoapClientException,
-    SoapServerException,
     SoapRequestException,
+    SoapServerException,
 )
 
 

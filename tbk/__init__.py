@@ -1,7 +1,4 @@
-from . import commerce
-from . import services
-from . import environments
-
+from . import commerce, environments, services
 from .soap.exceptions import SoapServerException  # noqa
 
 __all__ = ["services", "environments"]

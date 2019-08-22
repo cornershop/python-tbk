@@ -9,7 +9,6 @@ import xmlsec
 
 from .utils import create_xml_element
 
-
 SOAP_NS = "http://schemas.xmlsoap.org/soap/envelope/"
 DS_NS = "http://www.w3.org/2000/09/xmldsig#"
 

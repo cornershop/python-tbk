@@ -1,12 +1,12 @@
-import os
 import logging
-from datetime import datetime
+import os
 import random
+from datetime import datetime
 
 import flask
 
 import tbk
-from tbk.soap.exceptions import SoapServerException, SoapRequestException
+from tbk.soap.exceptions import SoapRequestException, SoapServerException
 
 CERTIFICATES_DIR = os.path.join(os.path.dirname(__file__), "commerces")
 
