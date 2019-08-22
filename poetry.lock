@@ -457,6 +457,18 @@ pytest = ">=2.8.0"
 
 [[package]]
 category = "dev"
+description = "py.test plugin to check import ordering using isort"
+name = "pytest-isort"
+optional = false
+python-versions = "*"
+version = "0.3.1"
+
+[package.dependencies]
+isort = ">=4.0"
+pytest = ">=3.5"
+
+[[package]]
+category = "dev"
 description = "Add .env support to your django/flask apps in development and deployments"
 name = "python-dotenv"
 optional = false
@@ -634,7 +646,7 @@ python-versions = ">=2.7"
 version = "0.5.2"
 
 [metadata]
-content-hash = "ee80917727ab4168b055ae4c4abbf586f918acea06253410946122dcbd97c191"
+content-hash = "645d14d139375ef948ae3abf2485482fa1a5ae2e111b49fabbfee09a72374828"
 python-versions = "~2.7 || ^3.6"
 
 [metadata.hashes]
@@ -679,6 +691,7 @@ pytest = ["52fa94b4ac81d2f063ee05e303acedf5c605e15dc0f4eef468b5c137f77241c3", "5
 pytest-black = ["75bbeccfe23442a190164c0bf202d7498df25451fa4177b781cee20183e7fc0d"]
 pytest-cov = ["2b097cde81a302e1047331b48cadacf23577e431b61e9c6f49a1170bbe3d3da6", "e00ea4fdde970725482f1f35630d12f074e121a23801aabf2ae154ec6bdd343a"]
 pytest-flakes = ["341964bf5760ebbdde9619f68a17d5632c674c3f6903ef66daa0a4f540b3d143", "daaf319250eeefa8cb13b0ba78ffdda67926c4b6446a9e14f946b86d1ba6af23"]
+pytest-isort = ["3be60e0de277b420ff89303ca6494320c41f7819ffa898756b90ef976e4c636a", "4bfee60dad1870b51700d55a85f5ceda766bd9d3d2878c1bbabee80e61b1be1a"]
 python-dotenv = ["debd928b49dbc2bf68040566f55cdb3252458036464806f4094487244e2a4093", "f157d71d5fec9d4bd5f51c82746b6344dffa680ee85217c123f4a0c8117c4544"]
 pytz = ["26c0b32e437e54a18161324a2fca3c4b9846b74a8dccddd843113109e1116b32", "c894d57500a4cd2d5c71114aaab77dbab5eabd9022308ce5ac9bb93a60a6f0c7"]
 readme-renderer = ["bb16f55b259f27f75f640acf5e00cf897845a8b3e4731b5c1a436e4b8529202f", "c8532b79afc0375a85f10433eca157d6b50f7d6990f337fa498c96cd4bfc203d"]

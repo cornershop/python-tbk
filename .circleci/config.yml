@@ -15,7 +15,7 @@ references:
           key: deps-{{ checksum "poetry.lock" }}
           paths:
             - /home/circleci/.cache/pypoetry/virtualenvs
-      - run: poetry run pytest --black --flake --cov=tbk
+      - run: poetry run pytest --black --flake --isort --cov=tbk
 
   install-wheel: &install-wheel
     steps:
