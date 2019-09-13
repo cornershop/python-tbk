@@ -1,4 +1,4 @@
-from .requestor import SoapRequestor, SoapResponse, SoapRequest  # noqa
+from .requestor import SoapRequest, SoapRequestor, SoapResponse  # noqa
 from .zeep_client import ZeepSoapClient
 
 default_client_class = ZeepSoapClient

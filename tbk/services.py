@@ -245,6 +245,11 @@ class OneClickMulticodeService(TBKWebService):
     WSDL_CERTIFICATION = "https://webpay3gint.transbank.cl/WSWebpayTransaction/cxf/WSOneClickMulticodeService?wsdl"
     WSDL_PRODUCTION = "https://webpay3g.transbank.cl/WSWebpayTransaction/cxf/WSOneClickMulticodeService?wsdl"
 
+
+    StoreInput = namedtuple(
+        "StoreInput", ["commerce_id", "buy_order", "amount", "shares_number"]
+    )
+
     def init_inscription(self, username, email, response_url):
         arguments = {"username": username, "email": email, "returnUrl": response_url}
         one_click_inscription_input = self.soap_requestor.create_object(

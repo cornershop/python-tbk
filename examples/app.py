@@ -1,12 +1,11 @@
-import os
 import logging
-from datetime import datetime
+import os
 import random
+from datetime import datetime
 
 import flask
 import tbk
-from tbk.services import StoreInput
-from tbk.soap.exceptions import SoapServerException, SoapRequestException
+from tbk.soap.exceptions import SoapRequestException, SoapServerException
 
 CERTIFICATES_DIR = os.path.join(os.path.dirname(__file__), "commerces")
 
@@ -46,9 +45,9 @@ ONECLICK_COMMERCE_CODE = "597044444405"
 ONECLICK_MALL_CODE = "597044444429"
 ONECLICK_MALL_COMMERCE_1 = "597044444430"
 ONECLICK_MALL_COMMERCE_2 = "597044444431"
-ONECLICK_MALL_CODE = "597044444436"
-ONECLICK_MALL_COMMERCE_1 = "597044444437"
-ONECLICK_MALL_COMMERCE_2 = "597044444438"
+ONECLICK_MALL_CODE_DEBIT = "597044444436"
+ONECLICK_MALL_COMMERCE_1_DEBIT = "597044444437"
+ONECLICK_MALL_COMMERCE_2_DEBIT = "597044444438"
 
 
 normal_commerce_data = load_commerce_data(NORMAL_COMMERCE_CODE)
@@ -269,13 +268,13 @@ def mall_authorize():
     shares_2 = flask.request.form["shares_2"]
 
     store_inputs = [
-        StoreInput(
+        tbk.services.OneClickMulticodeService.StoreInput(
             buy_order=buy_order_1,
             amount=amount_1,
             shares_number=shares_1,
             commerce_id=ONECLICK_MALL_COMMERCE_1,
         ),
-        StoreInput(
+        tbk.services.OneClickMulticodeService.StoreInput(
             buy_order=buy_order_2,
             amount=amount_2,
             shares_number=shares_2,

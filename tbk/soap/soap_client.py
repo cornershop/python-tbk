@@ -1,5 +1,5 @@
-import logging
 import abc
+import logging
 
 try:
     # noinspection PyUnresolvedReferences

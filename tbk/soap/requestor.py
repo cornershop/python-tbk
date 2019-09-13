@@ -1,6 +1,6 @@
 import logging
 
-from .exceptions import SoapServerException, SoapClientException
+from .exceptions import SoapClientException, SoapServerException
 
 
 class SoapRequest(object):
