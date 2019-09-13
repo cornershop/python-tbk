@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Final{% endblock title %}
+
+{% block header %}
+<h1>Mall</h1>
+<h2>Final</h2>
+{% endblock header %}
+
+<figure>
+  <caption>Sent XML</caption>
+  <code>{{ transaction.envelope_sent }}</code>
+</figure>
+
+<figure>
+  <caption>Received XML</caption>
+  <code>{{ transaction.envelope_received }}</code>
+</figure>
+
+{% block content %}
+<dl>
+  {% for key,value in transaction.result.items() %}
+  <dt>{{key}}</dt>
+  <dd>{{value}}</dd>
+  {% endfor %}
+</dl>
+
+
+<form action="/mall/authorize" method="POST">
+    <label for="username">Username
+        <input type="text" name="username" id="username" value="tbkuser">
+    </label>
+    <label for="tbk_user">TBK User
+        <input type="text" name="tbk_user" id="tbk_user" value="{{transaction.tbkUser}}">
+    </label>
+    <label for="buy_order">Parent Order
+      <input type="text" name="parent_order" id="parent_order" value="{{parent_order}}">
+    </label>
+    <label for="buy_order">Buy Order(1)
+      <input type="text" name="buy_order_1" id="buy_order_1" value="{{buy_order_1}}">
+    </label>
+    <label for="amount">Amount(1)
+      <input type="number" name="amount_1" id="amount_1" value="10000">
+    </label>
+    <label for="shares">Shares(1) (0 or 1 for RedCompra)
+        <input type="number" name="shares_1" id="shares_1" value="1">
+    </label>
+    <label for="buy_order">Buy Order(2)
+      <input type="text" name="buy_order_2" id="buy_order_2" value="{{buy_order_2}}">
+    </label>
+    <label for="amount_2">Amount(2)
+      <input type="number" name="amount_2" id="amount_2" value="15000">
+    </label>
+    <label for="shares_2">Shares(2) (0 or 1 for RedCompra)
+        <input type="number" name="shares_2" id="shares_2" value="1">
+    </label>
+    <button type="submit">Create authorization</button>
+</form>
+<form action="/mall/remove" method="POST">
+<label for="username">Username
+        <input type="text" name="username" id="username" value="tbkuser">
+    </label>
+    <label for="tbk_user">TBK User
+        <input type="text" name="tbk_user" id="tbk_user" value="{{transaction.tbkUser}}">
+    </label>
+    <button type="submit">Remove inscription</button>
+</form>
+{% endblock %}

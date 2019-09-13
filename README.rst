@@ -54,6 +54,11 @@ became::
     init_transaction(amount, buy_order, return_url, final_url, session_id)
 
 
+Oneclick Mall Service
+=====================
+
+A list of :code:`tbk.services.StoreInput` input is expected as :code:`wsOneClickMulticodeStorePaymentInput` for :code:`stores_input` parameter on :code:`authorize` method.
+
 Documentation
 =============
 
@@ -114,6 +119,12 @@ La librería usa una convención de nombres snakecased para ser más pythonica. 
 se traduce en::
 
     init_transaction(amount, buy_order, return_url, final_url, session_id)
+
+
+Servicio Oneclick Mall
+======================
+
+El método :code:`authorize` espera una lista de :code:`tbk.services.StoreInput` en el parámetro :code:`stores_input` que se corresponde con la definición de :code:`wsOneClickMulticodeStorePaymentInput`.
 
 
 Documentación

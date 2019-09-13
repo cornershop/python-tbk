@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "python-tbk"
-version = "0.3.0.dev0"
+version = "0.3.0"
 description = "Unofficial TBK Web Services Python SDK"
 license = "MIT"
 authors = ["Cornershop <tech@cornershopapp.com>"]
