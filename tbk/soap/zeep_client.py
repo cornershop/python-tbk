@@ -3,7 +3,10 @@ import zeep.plugins
 import zeep.helpers
 import zeep.exceptions
 import zeep.transports
-from requests import RequestException
+from requests import RequestException, Session
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
+
 
 from .soap_client import SoapClient
 from .wsse import sign_envelope, verify_envelope
@@ -33,8 +36,13 @@ class ZeepSoapClient(SoapClient):
         self.wsse = ZeepWsseSignature.init_from_data(
             key_data, cert_data, tbk_cert_data, password=password
         )
+        session = Session()
+        retry = Retry(total=0)
+        adapter = HTTPAdapter(max_retries=retry)
+        session.mount('http://', adapter)
+        session.mount('https://', adapter)
         self.transport_timeout = transport_timeout
-        self.transport = zeep.transports.Transport(timeout=self.transport_timeout)
+        self.transport = zeep.transports.Transport(session=session)
         self.history = zeep.plugins.HistoryPlugin()
         self.client = zeep.Client(
             wsdl_url, wsse=self.wsse, transport=self.transport, plugins=[self.history]
